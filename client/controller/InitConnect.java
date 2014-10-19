@@ -30,11 +30,9 @@ public class InitConnect {
 
     private static POJOSettings settingsFromFile;
     private LineNumberReader lineRead;
-    private Report report;
     private Connection conn;
 
-    public InitConnect(Report report) {
-    //    this.report = report;
+    public InitConnect() {
         settingsFromFile = new POJOSettings();
         loadSettings();
     }
@@ -67,11 +65,11 @@ public class InitConnect {
             if(line!=null && line.split("=").length==2) {
                 settingsFromFile.setNickName(line.split("=")[1]);
             }
-            report.lgr.log(Level.INFO, "server ip: " + InitConnect.getSettingsFromFile().getServerIP() + ", " +
+            Report.lgr.log(Level.INFO, "server ip: " + InitConnect.getSettingsFromFile().getServerIP() + ", " +
                             "port number: " + InitConnect.getSettingsFromFile().getPortNumber() + ", " +
                             "nickname: " + InitConnect.getSettingsFromFile().getNickName(), "");
         } catch (FileNotFoundException e) {
-            report.lgr.log(Level.WARNING, e.getMessage(), e);
+            Report.lgr.log(Level.WARNING, e.getMessage(), e);
         }
     }
 
@@ -79,7 +77,7 @@ public class InitConnect {
         try {
             return lineRead.readLine();
         } catch (IOException e) {
-            report.lgr.log(Level.WARNING, e.getMessage(), e);
+            Report.lgr.log(Level.WARNING, e.getMessage(), e);
         }
         return null;
     }
