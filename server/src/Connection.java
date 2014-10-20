@@ -6,22 +6,13 @@ import java.util.logging.Level;
 
 public class Connection implements Runnable {
 
-    public final static int FILE_SERVER_CLIENT = 1;
-    public final static int FILE_CLIENT_SERVER = 2;
-    public final static int FILE_NOT_FOUND = 3;
-    public final static int START_FILELIST = 4;
-    public final static int END_FILELIST = 5;
-    public final static int SEND_FILE_SIZE = 6;
-
     private String userName;
-
     private Socket clientSocket;
     private BufferedReader inFromClient;
     private DataOutputStream outToClient;
     private BufferedReader inFromClientString;
     private PrintWriter outToClientString;
     private ServerState state;
-    private String nameOfFile;
 
     public String getUserName() {
         return userName;
