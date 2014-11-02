@@ -3,15 +3,33 @@ package controller;
 public class POJOSettings {
 
     private String serverIP;
-    private String portNumber;
+    private String serverPort;
+    private String proxyIP;
+    private String proxyPort;
     private String nickName;
 
-    public String getPortNumber() {
-        return portNumber;
+    public String getServerPort() {
+        return serverPort;
     }
 
-    public void setPortNumber(String portNumber) {
-        this.portNumber = portNumber;
+    public void setServerPort(String serverPort) {
+        this.serverPort = serverPort;
+    }
+
+    public String getProxyIP() {
+        return proxyIP;
+    }
+
+    public void setProxyIP(String proxyIP) {
+        this.proxyIP = proxyIP;
+    }
+
+    public String getProxyPort() {
+        return proxyPort;
+    }
+
+    public void setProxyPort(String proxyPort) {
+        this.proxyPort = proxyPort;
     }
 
     public String getServerIP() {

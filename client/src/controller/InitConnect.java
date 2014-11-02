@@ -59,14 +59,22 @@ public class InitConnect {
             }
             line = readLine();
             if(line!=null && line.split("=").length==2) {
-                settingsFromFile.setPortNumber(line.split("=")[1]);
+                settingsFromFile.setServerPort(line.split("=")[1]);
+            }
+            line = readLine();
+            if(line!=null && line.split("=").length==2) {
+                settingsFromFile.setProxyIP(line.split("=")[1]);
+            }
+            line = readLine();
+            if(line!=null && line.split("=").length==2) {
+                settingsFromFile.setProxyPort(line.split("=")[1]);
             }
             line = readLine();
             if(line!=null && line.split("=").length==2) {
                 settingsFromFile.setNickName(line.split("=")[1]);
             }
             Report.lgr.log(Level.INFO, "server ip: " + InitConnect.getSettingsFromFile().getServerIP() + ", " +
-                            "port number: " + InitConnect.getSettingsFromFile().getPortNumber() + ", " +
+                            "port number: " + InitConnect.getSettingsFromFile().getServerPort() + ", " +
                             "nickname: " + InitConnect.getSettingsFromFile().getNickName(), "");
         } catch (FileNotFoundException e) {
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
@@ -97,5 +105,11 @@ public class InitConnect {
     public void informServerAboutMyRequestUpload(File selectedFile) {
         System.out.println(selectedFile.getAbsoluteFile());
         conn.pushFileToServer(selectedFile);
+    }
+
+    public void setLabels(JLabel labelProxyInfo, JLabel labelServerInfo, JLabel labelClientInfo) {
+        labelServerInfo.setText(conn.getClientSocket().getInetAddress() + ":" + conn.getClientSocket().getPort());
+        labelProxyInfo.setText(conn.getClientSocket().getInetAddress() + "");
+        labelClientInfo.setText(conn.getClientSocket().getLocalAddress() + ":" + conn.getClientSocket().getLocalPort());
     }
 }

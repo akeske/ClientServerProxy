@@ -33,6 +33,10 @@ public class Connection {
         }
     }
 
+    public Socket getClientSocket() {
+        return clientSocket;
+    }
+
     public void init() {
         if(clientSocket!=null){
             if(!clientSocket.isClosed()){

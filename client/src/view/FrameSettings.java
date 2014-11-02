@@ -19,11 +19,16 @@ public class FrameSettings extends JDialog{
     private Report report;
 
     private JPanel mainPanel;
+    private JPanel panelServer;
+    private JPanel panelProxy;
+    private JPanel panelClient;
     private JLabel labelIP;
     private JLabel labelPort;
     private JLabel labelNickName;
     private JTextField txtFieldIP;
     private JTextField txtFieldPort;
+    private JTextField txtFieldProxyIP;
+    private JTextField txtFieldProxyPort;
     private JTextField txtNickName;
 
     private JButton btnOK;
@@ -50,8 +55,8 @@ public class FrameSettings extends JDialog{
         getTxtNickName().setText(InitConnect.getSettingsFromFile().getNickName());
 
         setBounds(20, 20, 20, 20);
-        setMinimumSize(new Dimension(350, 250));
-        setResizable(false);
+        setMinimumSize(new Dimension(500, 250));
+      //  setResizable(false);
         setModal(true);
         Point p = mainFrame.getLocation();
         p.x = p.x + mainFrame.getSize().width/2 - this.getSize().width/2;
@@ -70,6 +75,10 @@ public class FrameSettings extends JDialog{
                 BorderFactory.createEtchedBorder(), "Configuration settings"));
         mainPanel.setLayout(new GridBagLayout());
 
+        panelServer = new JPanel(true);
+        panelServer.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "Server settings"));
+        panelServer.setLayout(new GridBagLayout());
         labelIP = new JLabel("IP number");
         labelIP.addKeyListener(new keyListenerEnterEscape(this));
         gbc = new GridBagConstraints();
@@ -81,11 +90,12 @@ public class FrameSettings extends JDialog{
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        mainPanel.add(labelIP, gbc);
+        panelServer.add(labelIP, gbc);
 
         txtFieldIP = new JTextField();
         txtFieldIP.addKeyListener(new keyListenerEnterEscape(this));
         txtFieldIP.setToolTipText("Please insert the IP of server");
+        txtFieldIP.setPreferredSize(new Dimension(70, 20));
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -95,7 +105,7 @@ public class FrameSettings extends JDialog{
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        mainPanel.add(txtFieldIP, gbc);
+        panelServer.add(txtFieldIP, gbc);
 
         labelPort = new JLabel("Port number");
         labelPort.addKeyListener(new keyListenerEnterEscape(this));
@@ -108,11 +118,12 @@ public class FrameSettings extends JDialog{
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        mainPanel.add(labelPort, gbc);
+        panelServer.add(labelPort, gbc);
 
         txtFieldPort = new JTextField();
         txtFieldPort.addKeyListener(new keyListenerEnterEscape(this));
         txtFieldPort.setToolTipText("Please insert the port number of server");
+        txtFieldPort.setPreferredSize(new Dimension(70, 20));
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 1;
@@ -122,8 +133,94 @@ public class FrameSettings extends JDialog{
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        mainPanel.add(txtFieldPort, gbc);
+        panelServer.add(txtFieldPort, gbc);
 
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        mainPanel.add(panelServer, gbc);
+
+        panelProxy = new JPanel(true);
+        panelProxy.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "Proxy settings"));
+        panelProxy.setLayout(new GridBagLayout());
+        labelIP = new JLabel("IP number");
+        labelIP.addKeyListener(new keyListenerEnterEscape(this));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        panelProxy.add(labelIP, gbc);
+
+        txtFieldProxyIP = new JTextField();
+        txtFieldProxyIP.addKeyListener(new keyListenerEnterEscape(this));
+        txtFieldProxyIP.setToolTipText("Please insert the IP of proxy");
+        txtFieldProxyIP.setPreferredSize(new Dimension(70, 20));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        panelProxy.add(txtFieldProxyIP, gbc);
+
+        labelPort = new JLabel("Port number");
+        labelPort.addKeyListener(new keyListenerEnterEscape(this));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        panelProxy.add(labelPort, gbc);
+
+        txtFieldProxyPort = new JTextField();
+        txtFieldProxyPort.addKeyListener(new keyListenerEnterEscape(this));
+        txtFieldProxyPort.setToolTipText("Please insert the port number of proxy");
+        txtFieldProxyPort.setPreferredSize(new Dimension(70, 20));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        panelProxy.add(txtFieldProxyPort, gbc);
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        mainPanel.add(panelProxy, gbc);
+
+        panelClient = new JPanel(true);
+        panelClient.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "User settings"));
+        panelClient.setLayout(new GridBagLayout());
         labelNickName = new JLabel("Insert a nickname");
         labelNickName.addKeyListener(new keyListenerEnterEscape(this));
         gbc = new GridBagConstraints();
@@ -135,7 +232,7 @@ public class FrameSettings extends JDialog{
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        mainPanel.add(labelNickName, gbc);
+        panelClient.add(labelNickName, gbc);
 
         txtNickName = new JTextField();
         txtNickName.addKeyListener(new keyListenerEnterEscape(this));
@@ -149,7 +246,18 @@ public class FrameSettings extends JDialog{
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        mainPanel.add(txtNickName, gbc);
+        panelClient.add(txtNickName, gbc);
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        mainPanel.add(panelClient, gbc);
 
         btnCancel = new JButton("Cancel");
         btnCancel.addActionListener(new ButtonLister(this));
@@ -184,9 +292,13 @@ public class FrameSettings extends JDialog{
         File settingsFile = new File("connect.ini");
         try {
             BufferedWriter output = new BufferedWriter(new FileWriter(settingsFile));
-            output.write("server="+txtFieldIP.getText());
+            output.write("serverip="+txtFieldIP.getText());
             output.newLine();
-            output.write("port=" + txtFieldPort.getText());
+            output.write("serverport=" + txtFieldPort.getText());
+            output.newLine();
+            output.write("proxyip="+txtFieldProxyIP.getText());
+            output.newLine();
+            output.write("proxyport=" + txtFieldProxyPort.getText());
             output.newLine();
             output.write("nickname=" + txtNickName.getText());
             output.close();
@@ -225,7 +337,21 @@ public class FrameSettings extends JDialog{
         this.txtNickName = txtNickName;
     }
 
+    public JTextField getTxtFieldProxyPort() {
+        return txtFieldProxyPort;
+    }
 
+    public void setTxtFieldProxyPort(JTextField txtFieldProxyPort) {
+        this.txtFieldProxyPort = txtFieldProxyPort;
+    }
+
+    public JTextField getTxtFieldProxyIP() {
+        return txtFieldProxyIP;
+    }
+
+    public void setTxtFieldProxyIP(JTextField txtFieldProxyIP) {
+        this.txtFieldProxyIP = txtFieldProxyIP;
+    }
 
     private class ButtonLister implements ActionListener {
 

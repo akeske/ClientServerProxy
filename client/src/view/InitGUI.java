@@ -25,6 +25,7 @@ public class InitGUI extends JFrame {
     private JPanel panelDownload;
     private JPanel panelStatus;
     private JPanel panelMain;
+    private JPanel panelInfo;
 
     private JMenuBar menubar;
     private JMenu menu;
@@ -42,6 +43,13 @@ public class InitGUI extends JFrame {
     private JButton btnRefreshList;
 
     private JProgressBar progressBar;
+
+    private JLabel labelServer;
+    private JLabel labelServerInfo;
+    private JLabel labelProxy;
+    private JLabel labelProxyInfo;
+    private JLabel labelClient;
+    private JLabel labelClientInfo;
 
     private JList<String> listFilesForDownload;
     private int intSelectedFileForDownload;
@@ -102,12 +110,23 @@ public class InitGUI extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridheight = 1;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 1;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
         panelMain.add(addPanelDownload(), gbc);
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        panelMain.add(addPanelInfo(), gbc);
 
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -139,7 +158,7 @@ public class InitGUI extends JFrame {
     //    setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("ico.png")));
         setBounds(20, 20, 20, 20);
         setResizable(false);
-        setSize(650, 400);
+        setSize(720, 400);
         if (InitConnect.getSettingsFromFile().getNickName() != null){
             setTitle("Client - " + InitConnect.getSettingsFromFile().getNickName());
         }else {
@@ -150,6 +169,94 @@ public class InitGUI extends JFrame {
         connection.connectionStatus = InitConnect.DISCONNECTED;
         changeGUIStatus();
         setVisible(true);
+    }
+
+    private JPanel addPanelInfo() {
+        Font myFont = new Font("Serif", Font.BOLD, 12);
+        panelInfo = new JPanel(true);
+        panelInfo.setFont(font);
+        panelInfo.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "Info"));
+
+        panelInfo.setLayout(new GridBagLayout());
+        GridBagConstraints gbc;
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        //    gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        labelServer = new JLabel("Server IP");
+        panelInfo.add(labelServer, gbc);
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        //    gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        labelProxy = new JLabel("Proxy IP");
+        panelInfo.add(labelProxy, gbc);
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        //    gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        labelClient = new JLabel("Client IP");
+        panelInfo.add(labelClient, gbc);
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        //    gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        labelServerInfo = new JLabel("disconnected");
+        labelServerInfo.setFont(myFont);
+        panelInfo.add(labelServerInfo, gbc);
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        //    gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        labelProxyInfo = new JLabel("disconnected");
+        labelProxyInfo.setFont(myFont);
+        panelInfo.add(labelProxyInfo, gbc);
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        //    gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = insets;
+        labelClientInfo = new JLabel("disconnected");
+        labelClientInfo.setFont(myFont);
+        panelInfo.add(labelClientInfo, gbc);
+
+        return panelInfo;
     }
 
     private JPanel addPanelConnection(){
@@ -228,7 +335,7 @@ public class InitGUI extends JFrame {
             }
         });
         JScrollPane listScrollBar = new JScrollPane(listFilesForDownload);
-        listScrollBar.setPreferredSize(new Dimension(500,100));
+        listScrollBar.setPreferredSize(new Dimension(300,100));
         panelDownload.add(listScrollBar, gbc);
 
         gbc = new GridBagConstraints();
@@ -356,6 +463,7 @@ public class InitGUI extends JFrame {
             border = BorderFactory.createLineBorder(InitConnect.statusColors[InitConnect.CONNECTED]);
             txtColorStatus.setBackground(InitConnect.statusColors[InitConnect.CONNECTED]);
             labelStatus.setText(InitConnect.statusMessages[InitConnect.CONNECTED]);
+            connection.setLabels( labelProxyInfo, labelServerInfo, labelClientInfo );
         }else if(connection.connectionStatus==InitConnect.DISCONNECTED) {
             listFilesForDownload.setModel(new DefaultListModel<String>());
             btnConnect.setEnabled(true);
@@ -369,10 +477,20 @@ public class InitGUI extends JFrame {
             border = BorderFactory.createLineBorder(InitConnect.statusColors[InitConnect.DISCONNECTED]);
             txtColorStatus.setBackground(InitConnect.statusColors[InitConnect.DISCONNECTED]);
             labelStatus.setText(InitConnect.statusMessages[InitConnect.DISCONNECTED]);
+
+            labelProxyInfo.setText("disconnected");
+            labelServerInfo.setText("disconnected");
+            labelClientInfo.setText("disconnected");
         }else if(connection.connectionStatus==InitConnect.FAIL_CONNECTION) {
             btnConnect.setEnabled(true);
+            labelProxyInfo.setText("disconnected");
+            labelServerInfo.setText("disconnected");
+            labelClientInfo.setText("disconnected");
         }else if(connection.connectionStatus==InitConnect.REFRESHING){
             btnRefreshList.setEnabled(false);
+            labelProxyInfo.setText("disconnected");
+            labelServerInfo.setText("disconnected");
+            labelClientInfo.setText("disconnected");
         }else {
             btnConnect.setEnabled(false);
             btnRefreshList.setEnabled(false);
@@ -381,6 +499,9 @@ public class InitGUI extends JFrame {
             btnUploadFile.setEnabled(false);
             labelUploadFile.setText("Click to select a file for upload...");
             labelUploadFile.setEnabled(false);
+            labelProxyInfo.setText("disconnected");
+            labelServerInfo.setText("disconnected");
+            labelClientInfo.setText("disconnected");
         }
         if(connection.connectionStatus==InitConnect.DISCONNECTING){
             listFilesForDownload.setModel(new DefaultListModel<String>());
