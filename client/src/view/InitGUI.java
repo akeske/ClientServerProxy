@@ -160,7 +160,14 @@ public class InitGUI extends JFrame {
         setResizable(false);
         setSize(720, 400);
         if (InitConnect.getSettingsFromFile().getNickName() != null){
-            setTitle("Client - " + InitConnect.getSettingsFromFile().getNickName());
+			String message;
+			if(InitConnect.getSettingsFromFile().getAnonym()==true){
+				message = "enable";
+			}else{
+				message = "disable";
+			}
+            setTitle("Client " + InitConnect.getSettingsFromFile().getNickName() + " - " + "anonymous is " +
+					message );
         }else {
             setTitle("Client");
         }
@@ -226,7 +233,7 @@ public class InitGUI extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         //    gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        labelServerInfo = new JLabel("disconnected");
+        labelServerInfo = new JLabel("Disconnected");
         labelServerInfo.setFont(myFont);
         panelInfo.add(labelServerInfo, gbc);
 
@@ -239,7 +246,7 @@ public class InitGUI extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         //    gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        labelProxyInfo = new JLabel("disconnected");
+        labelProxyInfo = new JLabel("Disconnected");
         labelProxyInfo.setFont(myFont);
         panelInfo.add(labelProxyInfo, gbc);
 
@@ -252,7 +259,7 @@ public class InitGUI extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         //    gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        labelClientInfo = new JLabel("disconnected");
+        labelClientInfo = new JLabel("Disconnected");
         labelClientInfo.setFont(myFont);
         panelInfo.add(labelClientInfo, gbc);
 
@@ -478,19 +485,19 @@ public class InitGUI extends JFrame {
             txtColorStatus.setBackground(InitConnect.statusColors[InitConnect.DISCONNECTED]);
             labelStatus.setText(InitConnect.statusMessages[InitConnect.DISCONNECTED]);
 
-            labelProxyInfo.setText("disconnected");
-            labelServerInfo.setText("disconnected");
-            labelClientInfo.setText("disconnected");
+            labelProxyInfo.setText("Disconnected");
+            labelServerInfo.setText("Disconnected");
+            labelClientInfo.setText("Disconnected");
         }else if(connection.connectionStatus==InitConnect.FAIL_CONNECTION) {
             btnConnect.setEnabled(true);
-            labelProxyInfo.setText("disconnected");
-            labelServerInfo.setText("disconnected");
-            labelClientInfo.setText("disconnected");
+            labelProxyInfo.setText("Disconnected");
+            labelServerInfo.setText("Disconnected");
+            labelClientInfo.setText("Disconnected");
         }else if(connection.connectionStatus==InitConnect.REFRESHING){
             btnRefreshList.setEnabled(false);
-            labelProxyInfo.setText("disconnected");
-            labelServerInfo.setText("disconnected");
-            labelClientInfo.setText("disconnected");
+            labelProxyInfo.setText("Disconnected");
+            labelServerInfo.setText("Disconnected");
+            labelClientInfo.setText("Disconnected");
         }else {
             btnConnect.setEnabled(false);
             btnRefreshList.setEnabled(false);
@@ -499,9 +506,9 @@ public class InitGUI extends JFrame {
             btnUploadFile.setEnabled(false);
             labelUploadFile.setText("Click to select a file for upload...");
             labelUploadFile.setEnabled(false);
-            labelProxyInfo.setText("disconnected");
-            labelServerInfo.setText("disconnected");
-            labelClientInfo.setText("disconnected");
+            labelProxyInfo.setText("Disconnected");
+            labelServerInfo.setText("Disconnected");
+            labelClientInfo.setText("Disconnected");
         }
         if(connection.connectionStatus==InitConnect.DISCONNECTING){
             listFilesForDownload.setModel(new DefaultListModel<String>());

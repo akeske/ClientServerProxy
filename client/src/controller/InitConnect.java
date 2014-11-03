@@ -38,8 +38,14 @@ public class InitConnect {
     }
 
     public void setConnection(){
-        conn = new Connection(this, settingsFromFile.getServerIP(), settingsFromFile.getPortNumber());
-        conn.init();
+        if(settingsFromFile.getAnonym()==true) {
+            conn = new Connection(this, settingsFromFile.getServerIP(), settingsFromFile.getServerPort(), settingsFromFile.getProxyIP(), settingsFromFile.getProxyPort());
+            conn.initServer();
+            conn.initProxy();
+        }else{
+            conn = new Connection(this, settingsFromFile.getServerIP(), settingsFromFile.getServerPort() );
+            conn.initServer();
+        }
     }
 
     public void unSetConnection(){
@@ -66,16 +72,30 @@ public class InitConnect {
                 settingsFromFile.setProxyIP(line.split("=")[1]);
             }
             line = readLine();
-            if(line!=null && line.split("=").length==2) {
-                settingsFromFile.setProxyPort(line.split("=")[1]);
-            }
-            line = readLine();
+			if(line!=null && line.split("=").length==2) {
+				settingsFromFile.setProxyPort(line.split("=")[1]);
+			}
+			line = readLine();
+			if(line!=null && line.split("=").length==2) {
+				settingsFromFile.setAnonym(Boolean.parseBoolean(line.split("=")[1] ));
+			}
+			line = readLine();
             if(line!=null && line.split("=").length==2) {
                 settingsFromFile.setNickName(line.split("=")[1]);
             }
-            Report.lgr.log(Level.INFO, "server ip: " + InitConnect.getSettingsFromFile().getServerIP() + ", " +
-                            "port number: " + InitConnect.getSettingsFromFile().getServerPort() + ", " +
-                            "nickname: " + InitConnect.getSettingsFromFile().getNickName(), "");
+            if(settingsFromFile.getAnonym()==Boolean.FALSE) {
+                Report.lgr.log(Level.INFO, "server ip: " + InitConnect.getSettingsFromFile().getServerIP() + ", " +
+                        "server port: " + InitConnect.getSettingsFromFile().getServerPort() + ", " +
+                        "nickname: " + InitConnect.getSettingsFromFile().getNickName() + ", " +
+                        "be anonymous: " + InitConnect.getSettingsFromFile().getAnonym(), "");
+            }else{
+                Report.lgr.log(Level.INFO, "server ip: " + InitConnect.getSettingsFromFile().getServerIP() + ", " +
+                        "server port: " + InitConnect.getSettingsFromFile().getServerPort() + ", " +
+                        "proxy ip: " + InitConnect.getSettingsFromFile().getProxyIP() + ", " +
+                        "proxy port: " + InitConnect.getSettingsFromFile().getProxyPort() + ", " +
+                        "nickname: " + InitConnect.getSettingsFromFile().getNickName() + ", " +
+                        "be anonymous: " + InitConnect.getSettingsFromFile().getAnonym(), "");
+            }
         } catch (FileNotFoundException e) {
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
         }
@@ -104,12 +124,24 @@ public class InitConnect {
 
     public void informServerAboutMyRequestUpload(File selectedFile) {
         System.out.println(selectedFile.getAbsoluteFile());
-        conn.pushFileToServer(selectedFile);
+        if(getSettingsFromFile().getAnonym()==true){
+            conn.pushFileToServerOrProxy(selectedFile, conn.getProxy());
+        } else {
+            conn.pushFileToServerOrProxy(selectedFile, conn.getServer());
+        }
     }
 
     public void setLabels(JLabel labelProxyInfo, JLabel labelServerInfo, JLabel labelClientInfo) {
-        labelServerInfo.setText(conn.getClientSocket().getInetAddress() + ":" + conn.getClientSocket().getPort());
-        labelProxyInfo.setText(conn.getClientSocket().getInetAddress() + "");
         labelClientInfo.setText(conn.getClientSocket().getLocalAddress() + ":" + conn.getClientSocket().getLocalPort());
+        if(conn.getClientSocket()!=null) {
+			if(conn.getClientSocket()!=null){
+				labelServerInfo.setText(conn.getClientSocket().getInetAddress()+":"+conn.getClientSocket().getPort());
+			}
+        }
+        if(conn.getProxy()!=null){
+			if( conn.getClientSocketProxy()!=null ){
+				labelProxyInfo.setText(conn.getClientSocketProxy().getInetAddress()+":"+conn.getClientSocketProxy().getPort());
+			}
+		}
     }
 }

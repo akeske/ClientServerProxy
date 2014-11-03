@@ -25,14 +25,16 @@ public class FrameSettings extends JDialog{
     private JLabel labelIP;
     private JLabel labelPort;
     private JLabel labelNickName;
-    private JTextField txtFieldIP;
-    private JTextField txtFieldPort;
+    private JTextField txtFieldServerIP;
+    private JTextField txtFieldPServerPort;
     private JTextField txtFieldProxyIP;
     private JTextField txtFieldProxyPort;
     private JTextField txtNickName;
 
     private JButton btnOK;
     private JButton btnCancel;
+
+	private JCheckBox checkBoxAnonym;
 
     private InitGUI mainFrame;
 
@@ -50,17 +52,20 @@ public class FrameSettings extends JDialog{
         InitGUI.setLookAndFeel();
         SwingUtilities.updateComponentTreeUI(this);
 
-        getTxtFieldIP().setText(InitConnect.getSettingsFromFile().getServerIP());
-        getTxtFieldPort().setText(InitConnect.getSettingsFromFile().getPortNumber());
+		getTxtFieldServerIP().setText(InitConnect.getSettingsFromFile().getServerIP());
+		getTxtFieldPServerPort().setText(InitConnect.getSettingsFromFile().getServerPort());
+		getTxtFieldProxyIP().setText(InitConnect.getSettingsFromFile().getProxyIP());
+		getTxtFieldProxyPort().setText(InitConnect.getSettingsFromFile().getProxyPort());
+		getCheckBoxAnonym().setSelected(InitConnect.getSettingsFromFile().getAnonym());
         getTxtNickName().setText(InitConnect.getSettingsFromFile().getNickName());
 
         setBounds(20, 20, 20, 20);
         setMinimumSize(new Dimension(500, 250));
-      //  setResizable(false);
+        setResizable(false);
         setModal(true);
         Point p = mainFrame.getLocation();
         p.x = p.x + mainFrame.getSize().width/2 - this.getSize().width/2;
-        p.y = p.y + mainFrame.getSize().height/2 - this.getSize().height/2;
+        p.y = p.y + mainFrame.getSize().height/2 - this.getSize().height/2 - 70;
         setLocation(p);
         setTitle("Connection setup");
         pack();
@@ -69,6 +74,7 @@ public class FrameSettings extends JDialog{
     }
 
     private JPanel initGUISettings(){
+		Dimension dimTxtField = new Dimension(70, 25);
         GridBagConstraints gbc;
         mainPanel = new JPanel(true);
         mainPanel.setBorder(BorderFactory.createTitledBorder(
@@ -92,10 +98,10 @@ public class FrameSettings extends JDialog{
         gbc.insets = insets;
         panelServer.add(labelIP, gbc);
 
-        txtFieldIP = new JTextField();
-        txtFieldIP.addKeyListener(new keyListenerEnterEscape(this));
-        txtFieldIP.setToolTipText("Please insert the IP of server");
-        txtFieldIP.setPreferredSize(new Dimension(70, 20));
+		txtFieldServerIP = new JTextField();
+		txtFieldServerIP.addKeyListener(new keyListenerEnterEscape(this));
+		txtFieldServerIP.setToolTipText("Please insert the IP of server");
+		txtFieldServerIP.setPreferredSize(dimTxtField);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -105,7 +111,7 @@ public class FrameSettings extends JDialog{
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        panelServer.add(txtFieldIP, gbc);
+        panelServer.add(txtFieldServerIP, gbc);
 
         labelPort = new JLabel("Port number");
         labelPort.addKeyListener(new keyListenerEnterEscape(this));
@@ -120,10 +126,10 @@ public class FrameSettings extends JDialog{
         gbc.insets = insets;
         panelServer.add(labelPort, gbc);
 
-        txtFieldPort = new JTextField();
-        txtFieldPort.addKeyListener(new keyListenerEnterEscape(this));
-        txtFieldPort.setToolTipText("Please insert the port number of server");
-        txtFieldPort.setPreferredSize(new Dimension(70, 20));
+		txtFieldPServerPort = new JTextField();
+		txtFieldPServerPort.addKeyListener(new keyListenerEnterEscape(this));
+		txtFieldPServerPort.setToolTipText("Please insert the port number of server");
+		txtFieldPServerPort.setPreferredSize(dimTxtField);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 1;
@@ -133,7 +139,7 @@ public class FrameSettings extends JDialog{
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = insets;
-        panelServer.add(txtFieldPort, gbc);
+        panelServer.add(txtFieldPServerPort, gbc);
 
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -150,11 +156,34 @@ public class FrameSettings extends JDialog{
         panelProxy.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Proxy settings"));
         panelProxy.setLayout(new GridBagLayout());
+		checkBoxAnonym = new JCheckBox("be anonym");
+        checkBoxAnonym.addKeyListener(new keyListenerEnterEscape(this));
+		checkBoxAnonym.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange()==ItemEvent.SELECTED){
+				//	boolAnonym = true;
+				}else{
+				//	boolAnonym = false;
+				}
+			}
+		});
+		gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.gridheight = 1;
+		gbc.gridwidth = 2;
+		gbc.weightx = 1.0;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = insets;
+		panelProxy.add(checkBoxAnonym, gbc);
+
         labelIP = new JLabel("IP number");
         labelIP.addKeyListener(new keyListenerEnterEscape(this));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
@@ -166,10 +195,10 @@ public class FrameSettings extends JDialog{
         txtFieldProxyIP = new JTextField();
         txtFieldProxyIP.addKeyListener(new keyListenerEnterEscape(this));
         txtFieldProxyIP.setToolTipText("Please insert the IP of proxy");
-        txtFieldProxyIP.setPreferredSize(new Dimension(70, 20));
+        txtFieldProxyIP.setPreferredSize(dimTxtField);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
@@ -182,7 +211,7 @@ public class FrameSettings extends JDialog{
         labelPort.addKeyListener(new keyListenerEnterEscape(this));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
@@ -194,10 +223,10 @@ public class FrameSettings extends JDialog{
         txtFieldProxyPort = new JTextField();
         txtFieldProxyPort.addKeyListener(new keyListenerEnterEscape(this));
         txtFieldProxyPort.setToolTipText("Please insert the port number of proxy");
-        txtFieldProxyPort.setPreferredSize(new Dimension(70, 20));
+        txtFieldProxyPort.setPreferredSize(dimTxtField);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
@@ -292,18 +321,23 @@ public class FrameSettings extends JDialog{
         File settingsFile = new File("connect.ini");
         try {
             BufferedWriter output = new BufferedWriter(new FileWriter(settingsFile));
-            output.write("serverip="+txtFieldIP.getText());
+            output.write("serverip="+txtFieldServerIP.getText());
             output.newLine();
-            output.write("serverport=" + txtFieldPort.getText());
+            output.write("serverport=" + txtFieldPServerPort.getText());
             output.newLine();
             output.write("proxyip="+txtFieldProxyIP.getText());
             output.newLine();
-            output.write("proxyport=" + txtFieldProxyPort.getText());
-            output.newLine();
+			output.write("proxyport=" + txtFieldProxyPort.getText());
+			output.newLine();
+			output.write("anonym=" + getCheckBoxAnonym().isSelected());
+			output.newLine();
             output.write("nickname=" + txtNickName.getText());
             output.close();
-            InitConnect.getSettingsFromFile().setServerIP(getTxtFieldIP().getText());
-            InitConnect.getSettingsFromFile().setPortNumber(getTxtFieldPort().getText());
+			InitConnect.getSettingsFromFile().setServerIP(getTxtFieldServerIP().getText());
+			InitConnect.getSettingsFromFile().setServerPort(getTxtFieldPServerPort().getText());
+			InitConnect.getSettingsFromFile().setProxyIP(getTxtFieldProxyIP().getText());
+			InitConnect.getSettingsFromFile().setProxyPort(getTxtFieldProxyPort().getText());
+			InitConnect.getSettingsFromFile().setAnonym(getCheckBoxAnonym().isSelected());
             InitConnect.getSettingsFromFile().setNickName(getTxtNickName().getText());
             JOptionPane.showMessageDialog(this, "The settings were saved!", "Inform message",  JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
@@ -313,23 +347,31 @@ public class FrameSettings extends JDialog{
         }
     }
 
-    public JTextField getTxtFieldPort() {
-        return txtFieldPort;
-    }
+	public JCheckBox getCheckBoxAnonym() {
+		return checkBoxAnonym;
+	}
 
-    public void setTxtFieldPort(JTextField txtFieldPort) {
-        this.txtFieldPort = txtFieldPort;
-    }
+	public void setCheckBoxAnonym(JCheckBox checkBoxAnonym) {
+		this.checkBoxAnonym = checkBoxAnonym;
+	}
 
-    public JTextField getTxtFieldIP() {
-        return txtFieldIP;
-    }
+	public JTextField getTxtFieldPServerPort() {
+		return txtFieldPServerPort;
+	}
 
-    public void setTxtFieldIP(JTextField txtFieldIP) {
-        this.txtFieldIP = txtFieldIP;
-    }
+	public void setTxtFieldPServerPort(JTextField txtFieldPServerPort) {
+		this.txtFieldPServerPort = txtFieldPServerPort;
+	}
 
-    public JTextField getTxtNickName() {
+	public JTextField getTxtFieldServerIP() {
+		return txtFieldServerIP;
+	}
+
+	public void setTxtFieldServerIP(JTextField txtFieldServerIP) {
+		this.txtFieldServerIP = txtFieldServerIP;
+	}
+
+	public JTextField getTxtNickName() {
         return txtNickName;
     }
 
@@ -368,7 +410,10 @@ public class FrameSettings extends JDialog{
             }else if(e.getSource()==btnOK){
                 frameSettings.saveSettings();
                 frameSettings.dispose();
-                mainFrame.setTitle("Cleint - " + InitConnect.getSettingsFromFile().getNickName());
+				String message;
+				if(checkBoxAnonym.isSelected()==true) message = "enable"; else message = "disable";
+                mainFrame.setTitle("Cleint " + InitConnect.getSettingsFromFile().getNickName() + " - " + "anonymous" +
+						" is " + message );
             }
         }
     }

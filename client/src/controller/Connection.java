@@ -8,24 +8,43 @@ import java.util.logging.Level;
 
 public class Connection {
 
-    private Socket clientSocket;
-    private BufferedReader inFromServer;
-    private DataOutputStream outToServer;
-    private BufferedReader inFromServerString;
-    private PrintWriter outToServerString;
+    ServerProxy server;
+    ServerProxy proxy;
+
+    public boolean anonym;
 
     public State state;
     public InitConnect initConnect;
 
-    public Connection(InitConnect initConnect, String host, String port){
-        initConnect.connectionStatus = InitConnect.CONNECTING;
+    public Connection(InitConnect initConnect){
         this.initConnect = initConnect;
+        initConnect.connectionStatus = InitConnect.CONNECTING;
+        anonym = initConnect.getSettingsFromFile().getAnonym();
+    }
+
+    public Connection(InitConnect initConnect, String serverIP, String serverPort, String proxyIP, String proxyPort){
+        this(initConnect);
+        server = new ServerProxy();
+        proxy = new ServerProxy();
         try{
-            this.clientSocket = new Socket(host, Integer.parseInt(port) );
-            inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            outToServer = new DataOutputStream(clientSocket.getOutputStream());
-            inFromServerString = new BufferedReader(new InputStreamReader (clientSocket.getInputStream(), "UTF-8"));
-            outToServerString = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+            server.setSocket( new Socket(serverIP, Integer.parseInt(serverPort)) );
+            server.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
+            server.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
+            server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),
+                    "UTF-8")) );
+            server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),
+                    "UTF-8")) );
+        } catch ( UnknownHostException e ) {
+            Report.lgr.log(Level.WARNING, e.getMessage(), e);
+        } catch ( IOException e ) {
+            Report.lgr.log(Level.WARNING, e.getMessage(), e);
+        }
+        try{
+            proxy.setSocket( new Socket(serverIP, Integer.parseInt(serverPort)) );
+            proxy.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
+            proxy.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
+            proxy.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),"UTF-8")) );
+            proxy.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(), "UTF-8")) );
         } catch ( UnknownHostException e ) {
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
         } catch ( IOException e ) {
@@ -33,29 +52,82 @@ public class Connection {
         }
     }
 
-    public Socket getClientSocket() {
-        return clientSocket;
+    public Connection(InitConnect initConnect, String serverIP, String serverPort) {
+        this(initConnect);
+        server = new ServerProxy();
+        try{
+            server.setSocket( new Socket(serverIP, Integer.parseInt(serverPort)) );
+            server.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
+            server.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
+            server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),
+                    "UTF-8")) );
+            server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),
+                    "UTF-8")) );
+        } catch ( UnknownHostException e ) {
+            Report.lgr.log(Level.WARNING, e.getMessage(), e);
+        } catch ( IOException e ) {
+            Report.lgr.log(Level.WARNING, e.getMessage(), e);
+        }
     }
 
-    public void init() {
-        if(clientSocket!=null){
-            if(!clientSocket.isClosed()){
-                try{
+    public ServerProxy getProxy() {
+        return proxy;
+    }
+
+    public ServerProxy getServer() {
+        return server;
+    }
+
+    public Socket getClientSocket() {
+        return server.getSocket();
+    }
+    public Socket getClientSocketProxy() {
+        return proxy.getSocket();
+    }
+
+    public void initServer() {
+        if ( server.getSocket()!=null ) {
+            if ( ! server.getSocket().isClosed() ) {
+                try {
                     initConnect.connectionStatus = InitConnect.CONNECTED;
-                    outToServerString.write(Commands.commandMessages[Commands.COMMAND_USERNAME] + initConnect
-                            .getSettingsFromFile().getNickName() + "\n");
-                    outToServerString.flush();
-                    Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " connected" , "");
+                    server.getOutString().write(Commands.commandMessages[Commands.COMMAND_USERNAME] +
+                            initConnect.getSettingsFromFile().getNickName() + "\n");
+                    server.getOutString().flush();
+                    Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " connected", "");
                     state = new StateConnect();
                     state.execute();
-                }catch ( Exception e ){
+                } catch ( Exception e ) {
                     initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
                     state = new StateDisconnect();
                     state.execute();
                     Report.lgr.log(Level.WARNING, e.getMessage(), e);
                 }
             }
-        }else{
+        } else {
+            initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
+            Report.lgr.log(Level.WARNING, "Could not connect to server!", "");
+        }
+    }
+
+    public void initProxy(){
+        if ( proxy.getSocket()!=null ) {
+            if ( ! proxy.getSocket().isClosed() ) {
+                try {
+                    initConnect.connectionStatus = InitConnect.CONNECTED;
+                    proxy.getOutString().write(Commands.commandMessages[Commands.COMMAND_USERNAME] +
+                            initConnect.getSettingsFromFile().getNickName() + "\n");
+                    proxy.getOutString().flush();
+                    Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " connected", "");
+                    state = new StateConnect();
+                    state.execute();
+                } catch ( Exception e ) {
+                    initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
+                    state = new StateDisconnect();
+                    state.execute();
+                    Report.lgr.log(Level.WARNING, e.getMessage(), e);
+                }
+            }
+        } else {
             initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
             Report.lgr.log(Level.WARNING, "Could not connect to server!", "");
         }
@@ -64,27 +136,38 @@ public class Connection {
     public void destroy() {
         try {
             initConnect.connectionStatus = InitConnect.DISCONNECTING;
-            outToServerString.write(Commands.commandMessages[Commands.COMMAND_DISCONNECT] + "\n");
-            outToServerString.flush();
-            Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " disconnected" , "");
+            server.getOutString().write(Commands.commandMessages[Commands.COMMAND_DISCONNECT] + "\n");
+            server.getOutString().flush();
+            Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " disconnected from server" ,
+                    "");
             Thread.sleep(100);
-            clientSocket.close();
+            server.getSocket().close();
+
+			if(anonym==true){
+				proxy.getOutString().write(Commands.commandMessages[Commands.COMMAND_DISCONNECT]+"\n");
+				proxy.getOutString().flush();
+				Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName()+" disconnected from proxy", "");
+				Thread.sleep(100);
+				proxy.getSocket().close();
+			}
             initConnect.connectionStatus = InitConnect.DISCONNECTED;
         } catch (IOException e) {
-            Report.lgr.log(Level.WARNING, "IO Error, please check connection to server", e);
+            Report.lgr.log(Level.WARNING, "IO Error, please check connection to server or to proxy", e);
             initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
-            clientSocket = null;
+            server.setSocket(null);
+            proxy.setSocket(null);
         } catch (InterruptedException e) {
             //do nothing if the pause is interupted
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
             initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
-            clientSocket = null;
+            server.setSocket(null);
+            proxy.setSocket(null);
         }
     }
 
     public DefaultListModel<String> getListFromServer(){
-        outToServerString.write(Commands.commandMessages[Commands.COMMAND_GET_SEND_FILELIST] + "\n");
-        outToServerString.flush();
+        server.getOutString().write(Commands.commandMessages[Commands.COMMAND_GET_SEND_FILELIST] + "\n");
+        server.getOutString().flush();
         state = new StateGetListFromServer();
         DefaultListModel<String> files = state.executeGetList();
         initConnect.connectionStatus = InitConnect.CONNECTED;
@@ -92,18 +175,18 @@ public class Connection {
     }
 
     public void getFileFromServer(String selectedFile){
-        outToServerString.write(Commands.commandMessages[Commands.COMMAND_DOWNLOAD_FILE_FROM_SERVER] +
+        server.getOutString().write(Commands.commandMessages[Commands.COMMAND_DOWNLOAD_FILE_FROM_SERVER] +
                 selectedFile + "\n");
-        outToServerString.flush();
+        server.getOutString().flush();
         state = new StateDownloadFile(selectedFile);
         state.execute();
     }
 
-    public void pushFileToServer(File selectedFile) {
-        outToServerString.write(Commands.commandMessages[Commands.COMMAND_UPLOAD_FILE_TO_SERVER] + selectedFile.getName
+    public void pushFileToServerOrProxy(File selectedFile, ServerProxy temp) {
+        server.getOutString().write(Commands.commandMessages[Commands.COMMAND_UPLOAD_FILE_TO_SERVER] + selectedFile.getName
                 () + "\n");
-        outToServerString.flush();
-        state = new StateUploadFile(selectedFile);
+        server.getOutString().flush();
+        state = new StateUploadFileViaProxyOrServer(selectedFile, temp);
         state.execute();
     }
 
@@ -144,10 +227,10 @@ public class Connection {
             try {
                 int i  = 0;
                 DefaultListModel<String> file = new DefaultListModel<String>();
-                file.addElement(inFromServerString.readLine());
+                file.addElement(server.getInString().readLine());
                 //    System.out.println(file.get(i));
                 while(!file.get(i).startsWith(Commands.commandMessages[Commands.COMMAND_END_RECEIVING_FILELIST])){
-                    file.addElement(inFromServerString.readLine());
+                    file.addElement(server.getInString().readLine());
                 //    System.out.println(file.get(i));
                     i++;
                 }
@@ -162,11 +245,13 @@ public class Connection {
         }
     }
 
-    private class StateUploadFile implements State{
+    private class StateUploadFileViaProxyOrServer implements State{
 
         private File selectedFile;
-        public StateUploadFile(File selectedFile) {
+        private ServerProxy temp;
+        public StateUploadFileViaProxyOrServer(File selectedFile, ServerProxy temp) {
             this.selectedFile = selectedFile;
+            this.temp = temp;
         }
 
         @Override
@@ -182,20 +267,25 @@ public class Connection {
                     throw new FileNotFoundException();
                 }
 
-                outToServer.writeBytes(myFile.length() + "\n");
+                temp.getOut().writeBytes(myFile.length() + "\n");
                 byte[] fileBytes = new byte[(int) myFile.length()];
                 BufferedInputStream bufferedInFromFile = new BufferedInputStream(new FileInputStream(myFile));
                 bufferedInFromFile.read(fileBytes, 0, fileBytes.length);
                 bufferedInFromFile.close();
                 Thread.sleep(100);
-                outToServer.write(fileBytes, 0, fileBytes.length);
-                outToServer.flush();
+                temp.getOut().write(fileBytes, 0, fileBytes.length);
+                temp.getOut().flush();
             //    System.out.println("File sent to server");
-                Report.lgr.log(Level.INFO, "Upload completed\nFile: " + selectedFile.getName() +"\nSize: " + myFile.length(),
-                        "");
+                if(anonym==true){
+                    Report.lgr.log(Level.INFO, "Upload to proxy completed\nFile: " + selectedFile.getName() +
+                                    "\nSize: " + myFile.length(), "");
+                }else {
+                    Report.lgr.log(Level.INFO, "Upload to server completed\nFile: " + selectedFile.getName() +
+                                    "\nSize: " + myFile.length(), "");
+                }
             }catch(FileNotFoundException e){
                 try {
-                    outToServer.writeBytes(Commands.commandMessages[Commands.COMMAND_FILE_NOT_FOUNT] + "\n");
+                    temp.getOut().writeBytes(Commands.commandMessages[Commands.COMMAND_FILE_NOT_FOUNT] + "\n");
                     Report.lgr.log(Level.WARNING, "File not found!", "");
                 } catch (IOException e1) {
                     Report.lgr.log(Level.WARNING, e1.getMessage(), e1);
@@ -223,12 +313,12 @@ public class Connection {
         @Override
         public void execute() {
             try{
-                String fileExists = inFromServer.readLine();
+                String fileExists = server.getIn().readLine();
                 if(!fileExists.equals(Commands.commandMessages[Commands.COMMAND_FILE_NOT_FOUNT])){
                     int fileSize = Integer.parseInt(fileExists);
                 //    System.out.println(fileSize);
                     byte[] mybytearray = new byte[fileSize];
-                    DataInputStream is = new DataInputStream(clientSocket.getInputStream());
+                    DataInputStream is = new DataInputStream(server.getSocket().getInputStream());
                     FileOutputStream fos = new FileOutputStream(fileName);
                     BufferedOutputStream bos = new BufferedOutputStream(fos);
                     //        outToServer.writeBytes(Commands.commandMessages[Commands.COMMAND_SEND_FILE_SIZE]);
