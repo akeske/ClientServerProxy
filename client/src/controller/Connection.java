@@ -30,21 +30,19 @@ public class Connection {
             server.setSocket( new Socket(serverIP, Integer.parseInt(serverPort)) );
             server.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
             server.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
-            server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),
-                    "UTF-8")) );
-            server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),
-                    "UTF-8")) );
+            server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),"UTF-8")) );
+            server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),"UTF-8")) );
         } catch ( UnknownHostException e ) {
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
         } catch ( IOException e ) {
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
         }
         try{
-            proxy.setSocket( new Socket(serverIP, Integer.parseInt(serverPort)) );
-            proxy.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
-            proxy.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
-            proxy.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),"UTF-8")) );
-            proxy.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(), "UTF-8")) );
+            proxy.setSocket( new Socket(proxyIP, Integer.parseInt(proxyPort)) );
+            proxy.setIn( new BufferedReader(new InputStreamReader(proxy.getSocket().getInputStream())) );
+            proxy.setOut( new DataOutputStream(proxy.getSocket().getOutputStream()) );
+            proxy.setInString( new BufferedReader(new InputStreamReader (proxy.getSocket().getInputStream(),"UTF-8")) );
+            proxy.setOutString( new PrintWriter(new OutputStreamWriter(proxy.getSocket().getOutputStream(), "UTF-8")) );
         } catch ( UnknownHostException e ) {
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
         } catch ( IOException e ) {
@@ -59,10 +57,8 @@ public class Connection {
             server.setSocket( new Socket(serverIP, Integer.parseInt(serverPort)) );
             server.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
             server.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
-            server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),
-                    "UTF-8")) );
-            server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),
-                    "UTF-8")) );
+            server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),"UTF-8")) );
+            server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),"UTF-8")) );
         } catch ( UnknownHostException e ) {
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
         } catch ( IOException e ) {
@@ -81,19 +77,25 @@ public class Connection {
     public Socket getClientSocket() {
         return server.getSocket();
     }
+
     public Socket getClientSocketProxy() {
         return proxy.getSocket();
     }
 
     public void initServer() {
         if ( server.getSocket()!=null ) {
-            if ( ! server.getSocket().isClosed() ) {
+            if ( !server.getSocket().isClosed() ) {
                 try {
-                    initConnect.connectionStatus = InitConnect.CONNECTED;
+					if(anonym==true){
+						initConnect.connectionStatus = InitConnect.CONNECTING;
+					}else{
+						initConnect.connectionStatus = InitConnect.CONNECTED;
+					}
                     server.getOutString().write(Commands.commandMessages[Commands.COMMAND_USERNAME] +
                             initConnect.getSettingsFromFile().getNickName() + "\n");
                     server.getOutString().flush();
-                    Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " connected", "");
+                    Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " connected with " +
+							"server: " + server.getSocket().getInetAddress()+":"+server.getSocket().getPort(), "");
                     state = new StateConnect();
                     state.execute();
                 } catch ( Exception e ) {
@@ -110,49 +112,53 @@ public class Connection {
     }
 
     public void initProxy(){
-        if ( proxy.getSocket()!=null ) {
-            if ( ! proxy.getSocket().isClosed() ) {
-                try {
-                    initConnect.connectionStatus = InitConnect.CONNECTED;
-                    proxy.getOutString().write(Commands.commandMessages[Commands.COMMAND_USERNAME] +
-                            initConnect.getSettingsFromFile().getNickName() + "\n");
-                    proxy.getOutString().flush();
-                    Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " connected", "");
-                    state = new StateConnect();
-                    state.execute();
-                } catch ( Exception e ) {
-                    initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
-                    state = new StateDisconnect();
-                    state.execute();
-                    Report.lgr.log(Level.WARNING, e.getMessage(), e);
-                }
-            }
-        } else {
-            initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
-            Report.lgr.log(Level.WARNING, "Could not connect to server!", "");
-        }
+		if ( !server.getSocket().isClosed() ){
+			if( proxy.getSocket()!=null ){
+				if( ! proxy.getSocket().isClosed() ){
+					try{
+						initConnect.connectionStatus = InitConnect.CONNECTED;
+						Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName()+" connected with "+
+								"proxy: "+proxy.getSocket().getInetAddress()+":"+proxy.getSocket().getPort(), "");
+						state = new StateConnect();
+						state.execute();
+					}catch( Exception e ){
+						initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
+						state = new StateDisconnect();
+						state.execute();
+						destroy();
+						Report.lgr.log(Level.WARNING, e.getMessage(), e);
+					}
+				}
+			}else{
+				destroy();
+				initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
+				Report.lgr.log(Level.WARNING, "Could not connect to proxy!", "");
+			}
+		}else{
+			initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
+			Report.lgr.log(Level.WARNING, "Could not connect to proxy!", "");
+		}
     }
 
     public void destroy() {
         try {
             initConnect.connectionStatus = InitConnect.DISCONNECTING;
-            server.getOutString().write(Commands.commandMessages[Commands.COMMAND_DISCONNECT] + "\n");
-            server.getOutString().flush();
-            Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " disconnected from server" ,
-                    "");
-            Thread.sleep(100);
-            server.getSocket().close();
-
-			if(anonym==true){
+			if(anonym==true && proxy.getSocket()!=null ){
 				proxy.getOutString().write(Commands.commandMessages[Commands.COMMAND_DISCONNECT]+"\n");
 				proxy.getOutString().flush();
 				Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName()+" disconnected from proxy", "");
 				Thread.sleep(100);
 				proxy.getSocket().close();
 			}
+            server.getOutString().write(Commands.commandMessages[Commands.COMMAND_DISCONNECT] + "\n");
+            server.getOutString().flush();
+            Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " disconnected from server", "");
+            Thread.sleep(100);
+            server.getSocket().close();
+
             initConnect.connectionStatus = InitConnect.DISCONNECTED;
         } catch (IOException e) {
-            Report.lgr.log(Level.WARNING, "IO Error, please check connection to server or to proxy", e);
+            Report.lgr.log(Level.WARNING, "IO Error, please check the connection with the server or with the proxy", e);
             initConnect.connectionStatus = InitConnect.FAIL_CONNECTION;
             server.setSocket(null);
             proxy.setSocket(null);
@@ -183,9 +189,9 @@ public class Connection {
     }
 
     public void pushFileToServerOrProxy(File selectedFile, ServerProxy temp) {
-        server.getOutString().write(Commands.commandMessages[Commands.COMMAND_UPLOAD_FILE_TO_SERVER] + selectedFile.getName
-                () + "\n");
-        server.getOutString().flush();
+	//	System.out.println("selected socket: " + temp.getSocket().getInetAddress() +":"+temp.getSocket().getPort());
+		temp.getOutString().write(Commands.commandMessages[Commands.COMMAND_UPLOAD_FILE_TO_SERVER_PROXY]+selectedFile.getName()+"\n");
+		temp.getOutString().flush();
         state = new StateUploadFileViaProxyOrServer(selectedFile, temp);
         state.execute();
     }
@@ -202,8 +208,7 @@ public class Connection {
         }
 
         @Override
-        public void execute(){
-        }
+        public void execute(){}
     }
 
     private class StateDisconnect implements State{
@@ -213,14 +218,12 @@ public class Connection {
         }
 
         @Override
-        public void execute() {
-        }
+        public void execute() {}
     }
 
     private class StateGetListFromServer implements State{
         @Override
-        public void execute() {
-        }
+        public void execute() {}
 
         @Override
         public DefaultListModel<String> executeGetList() {
@@ -234,8 +237,7 @@ public class Connection {
                 //    System.out.println(file.get(i));
                     i++;
                 }
-                Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " pull list of files" ,
-                        "");
+                Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName() + " pull list of files", "");
                 return file;
             } catch (IOException e) {
                 Report.lgr.log(Level.WARNING, e.getMessage(), e);
@@ -249,6 +251,7 @@ public class Connection {
 
         private File selectedFile;
         private ServerProxy temp;
+
         public StateUploadFileViaProxyOrServer(File selectedFile, ServerProxy temp) {
             this.selectedFile = selectedFile;
             this.temp = temp;
@@ -262,6 +265,7 @@ public class Connection {
         @Override
         public void execute() {
             try{
+				Thread.sleep(100);
                 File myFile = new File(String.valueOf(selectedFile.getAbsoluteFile()));
                 if(!myFile.exists()){
                     throw new FileNotFoundException();
@@ -277,12 +281,14 @@ public class Connection {
                 temp.getOut().flush();
             //    System.out.println("File sent to server");
                 if(anonym==true){
-                    Report.lgr.log(Level.INFO, "Upload to proxy completed\nFile: " + selectedFile.getName() +
-                                    "\nSize: " + myFile.length(), "");
+                    Report.lgr.log(Level.INFO, "Upload to proxy completed -> file: " + selectedFile.getName() +
+                                    " - size: " + myFile.length(), "");
                 }else {
-                    Report.lgr.log(Level.INFO, "Upload to server completed\nFile: " + selectedFile.getName() +
-                                    "\nSize: " + myFile.length(), "");
+                    Report.lgr.log(Level.INFO, "Upload to server completed -> file: " + selectedFile.getName() +
+                                    " - size: " + myFile.length(), "");
                 }
+			//	String report = temp.getInString().readLine();
+				Thread.sleep(100);
             }catch(FileNotFoundException e){
                 try {
                     temp.getOut().writeBytes(Commands.commandMessages[Commands.COMMAND_FILE_NOT_FOUNT] + "\n");

@@ -125,8 +125,10 @@ public class InitConnect {
     public void informServerAboutMyRequestUpload(File selectedFile) {
         System.out.println(selectedFile.getAbsoluteFile());
         if(getSettingsFromFile().getAnonym()==true){
+			Report.lgr.log(Level.INFO, "Upload via proxy", "");
             conn.pushFileToServerOrProxy(selectedFile, conn.getProxy());
         } else {
+			Report.lgr.log(Level.INFO, "Upload direct to server", "");
             conn.pushFileToServerOrProxy(selectedFile, conn.getServer());
         }
     }

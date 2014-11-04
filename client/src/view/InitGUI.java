@@ -155,10 +155,10 @@ public class InitGUI extends JFrame {
         setJMenuBar(generateMenu());
 
         pack();
-    //    setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("ico.png")));
+    //    setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ico.png")));
         setBounds(20, 20, 20, 20);
         setResizable(false);
-        setSize(720, 400);
+        setSize(720, 380);
         if (InitConnect.getSettingsFromFile().getNickName() != null){
 			String message;
 			if(InitConnect.getSettingsFromFile().getAnonym()==true){
@@ -181,6 +181,7 @@ public class InitGUI extends JFrame {
     private JPanel addPanelInfo() {
         Font myFont = new Font("Serif", Font.BOLD, 12);
         panelInfo = new JPanel(true);
+		panelInfo.setPreferredSize(new Dimension(250, 200));
         panelInfo.setFont(font);
         panelInfo.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Info"));
@@ -201,8 +202,8 @@ public class InitGUI extends JFrame {
         panelInfo.add(labelServer, gbc);
 
         gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
@@ -213,8 +214,8 @@ public class InitGUI extends JFrame {
         panelInfo.add(labelProxy, gbc);
 
         gbc = new GridBagConstraints();
-        gbc.gridx = 2;
-        gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 2;
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
@@ -225,8 +226,8 @@ public class InitGUI extends JFrame {
         panelInfo.add(labelClient, gbc);
 
         gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridx = 1;
+        gbc.gridy = 0;
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
@@ -251,8 +252,8 @@ public class InitGUI extends JFrame {
         panelInfo.add(labelProxyInfo, gbc);
 
         gbc = new GridBagConstraints();
-        gbc.gridx = 2;
-        gbc.gridy = 1;
+        gbc.gridx = 1;
+        gbc.gridy = 2;
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
@@ -293,7 +294,7 @@ public class InitGUI extends JFrame {
 
         labelUploadFile = new JLabel();
         labelUploadFile.setFont(font);
-        labelUploadFile.setPreferredSize(new Dimension(200,20));
+        labelUploadFile.setPreferredSize(new Dimension(100,20));
         labelUploadFile.addMouseListener(new LabelListener(this));
         panelUpload.add(labelUploadFile);
 
@@ -308,6 +309,7 @@ public class InitGUI extends JFrame {
     private JPanel addPanelDownload(){
         panelDownload = new JPanel(true);
         panelDownload.setFont(font);
+		panelDownload.setPreferredSize(new Dimension(300, 200));
         panelDownload.setLayout(new GridBagLayout());
         GridBagConstraints gbc;
 
@@ -342,7 +344,7 @@ public class InitGUI extends JFrame {
             }
         });
         JScrollPane listScrollBar = new JScrollPane(listFilesForDownload);
-        listScrollBar.setPreferredSize(new Dimension(300,100));
+        listScrollBar.setPreferredSize(new Dimension(340,100));
         panelDownload.add(listScrollBar, gbc);
 
         gbc = new GridBagConstraints();
@@ -427,7 +429,7 @@ public class InitGUI extends JFrame {
         gbc.gridx = 1;
         labelStatus = new JLabel();
         labelStatus.setFont(font);
-        labelStatus.setPreferredSize(new Dimension(300, 20));
+        labelStatus.setPreferredSize(new Dimension(400, 20));
         labelStatus.setHorizontalAlignment(SwingConstants.LEFT);
         panelStatus.add(labelStatus, gbc);
 
