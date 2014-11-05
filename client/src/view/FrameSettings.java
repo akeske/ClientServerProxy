@@ -85,7 +85,7 @@ public class FrameSettings extends JDialog{
         panelServer.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Server settings"));
         panelServer.setLayout(new GridBagLayout());
-        labelIP = new JLabel("IP number");
+        labelIP = new JLabel("IP address");
         labelIP.addKeyListener(new keyListenerEnterEscape(this));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -179,7 +179,7 @@ public class FrameSettings extends JDialog{
 		gbc.insets = insets;
 		panelProxy.add(checkBoxAnonym, gbc);
 
-        labelIP = new JLabel("IP number");
+        labelIP = new JLabel("IP address");
         labelIP.addKeyListener(new keyListenerEnterEscape(this));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;

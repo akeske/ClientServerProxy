@@ -1,9 +1,7 @@
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.logging.Level;
 
@@ -43,44 +41,71 @@ public class Main {
 		}
 	}
 
-	public static void main(String args[]) throws Exception{
+	public static void main(String args[]){
 		try{
-			int proxyPort;
-			int serverPort;
-			String serverHost = "";
-			String portString = "";
+			int proxyPort = 0;
+			int serverPort = 0;
+			String serverHost ="127.0.0.1";
+			String portString;
+			String portString2;
 			Scanner in = new Scanner(System.in);
 
             System.out.print("Please give me your desirable SERVER host: ");
 			serverHost = in.nextLine();
-			if(serverHost==""){
+			if(serverHost.isEmpty()){
 				serverHost = "127.0.0.1";
 			}
+
 			System.out.print("Please give me your desirable SERVER port: ");
 			portString = in.nextLine();
-			if(portString==""){
-				serverPort = 4321;
+			if(portString.isEmpty()){
+				serverPort = 1234;
 			}else{
 				serverPort = Integer.parseInt(portString);
 			}
+
 			System.out.print("Please give me your desirable PROXY port: ");
-			portString = in.nextLine();
-			if(portString==""){
-				proxyPort = 1234;
+			portString2 = in.nextLine();
+			if(portString2.isEmpty()){
+				proxyPort = 4321;
 			}else{
-				proxyPort = Integer.parseInt(portString);
+				proxyPort = Integer.parseInt(portString2);
 			}
 
-		//	serverHost = "127.0.0.1";
-		//	serverPort = 1234;
-		//	proxyPort = 4321;
-			//	Report.lgr.log(Level.INFO, "server host: " + serverHost + ", server port: " + serverPort + ", " +
-			//			"proxy port: " + proxyPort, "");
+			System.out.println("\n\tServer host: " + serverHost + "\n\tServer port: " + serverPort);
+
+
+
+			InetAddress inetAddr = InetAddress.getLocalHost();
+			System.out.println("\n\tHostname: " + inetAddr.getHostName());
+			System.out.println("\tLocal IP Address: " + inetAddr.getHostAddress());
+			Enumeration en = NetworkInterface.getNetworkInterfaces();
+			while(en.hasMoreElements()) {
+				NetworkInterface ni = (NetworkInterface) en.nextElement();
+				if(ni.getName().startsWith("eth0")){
+					System.out.println("\tNet interface: "+ni.getName());
+					Enumeration e2 = ni.getInetAddresses();
+					while (e2.hasMoreElements()){
+						InetAddress ip = (InetAddress) e2.nextElement();
+						System.out.println("\t\tIP address: "+ ip.toString());
+					}
+				}
+			}
+			System.out.println("\tYou have to open port " +proxyPort+ " from router");
+
+
 			new Main(serverHost, serverPort, proxyPort);
+
 		}catch(NumberFormatException e){
 			Report.lgr.log(Level.WARNING, "Invalid port number. Please enter an integer", e);
 		}catch(ArrayIndexOutOfBoundsException e){
 			Report.lgr.log(Level.WARNING, "No port number entered. Please enter a port number", e);
+		} catch (SocketException e) {
+
+		} catch (UnknownHostException e) {
+
+		} catch (IOException e) {
+
 		}
 	}
 
@@ -102,10 +127,7 @@ class TerminalThread implements Runnable{
 		Scanner in = new Scanner(System.in);
 		System.out.println();
 		System.out.println("@@@@@@@   You can type 'exit' whenever you want to close PROXY!!!   @@@@@@@");
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
+		System.out.println("\n");
 		String command = in.nextLine();
 		if(command.equalsIgnoreCase("exit")){
 			System.exit(0);

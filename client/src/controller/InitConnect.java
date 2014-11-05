@@ -137,12 +137,12 @@ public class InitConnect {
         labelClientInfo.setText(conn.getClientSocket().getLocalAddress() + ":" + conn.getClientSocket().getLocalPort());
         if(conn.getClientSocket()!=null) {
 			if(conn.getClientSocket()!=null){
-				labelServerInfo.setText(conn.getClientSocket().getInetAddress()+":"+conn.getClientSocket().getPort());
+				labelServerInfo.setText(conn.getClientSocket().getInetAddress().getHostAddress()+":"+conn.getClientSocket().getPort());
 			}
         }
         if(conn.getProxy()!=null){
 			if( conn.getClientSocketProxy()!=null ){
-				labelProxyInfo.setText(conn.getClientSocketProxy().getInetAddress()+":"+conn.getClientSocketProxy().getPort());
+				labelProxyInfo.setText(conn.getClientSocketProxy().getInetAddress().getHostAddress()+":"+conn.getClientSocketProxy().getPort());
 			}
 		}
     }

@@ -1,9 +1,7 @@
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.logging.Level;
 
@@ -16,6 +14,7 @@ public class Main {
 		new Report();
 		new Thread(new TerminalThread()).start();
 		Socket clientSocket = null;
+
 		try{
 			ServerSocket connectionSocket = new ServerSocket(port);
 			Report.lgr.log(Level.INFO, "Server started", "");
@@ -43,22 +42,51 @@ public class Main {
 		}
 	}
 
-	public static void main (String args[]) throws Exception{
+	public static void main (String args[]){
 		try{
 			int port;
-			System.out.print(" Please give me your desirable port: ");
+			System.out.print("Please give me your desirable port: ");
 			Scanner in = new Scanner(System.in);
 			String portString = in.nextLine();
-			if(portString==null){
-				port = 1231;
+			if(portString.isEmpty()){
+				port = 1234;
 			}else{
 				port = Integer.parseInt(portString);
 			}
-			new Main(port);
+
+			InetAddress inetAddr = InetAddress.getLocalHost();
+			System.out.println("\n\tHostname: " + inetAddr.getHostName());
+			System.out.println("\tLocal IP Address: " + inetAddr.getHostAddress());
+
+			Enumeration en = NetworkInterface.getNetworkInterfaces();
+			while(en.hasMoreElements()) {
+				NetworkInterface ni = (NetworkInterface) en.nextElement();
+				if(ni.getName().startsWith("eth0")){
+					System.out.println("\tNet interface: "+ni.getName());
+					Enumeration e2 = ni.getInetAddresses();
+					while (e2.hasMoreElements()){
+						InetAddress ip = (InetAddress) e2.nextElement();
+						System.out.println("\t\tIP address: "+ ip.toString());
+					}
+				}
+			}
+			System.out.println("\tYou have to open port " +port+ " from router");
+
+
+			try {
+				new Main(port);
+			} catch (IOException e) {
+				Report.lgr.log(Level.WARNING, e.getMessage(), e);
+			}
+
 		}catch(NumberFormatException e){
 			Report.lgr.log(Level.WARNING, "Invalid port number. Please enter an integer", e);
 		}catch(ArrayIndexOutOfBoundsException e){
 			Report.lgr.log(Level.WARNING, "No port number entered. Please enter a port number", e);
+		} catch (SocketException e) {
+			Report.lgr.log(Level.WARNING, e.getMessage(), e);
+		} catch (UnknownHostException e) {
+			Report.lgr.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 
@@ -80,10 +108,7 @@ class TerminalThread implements Runnable{
 		Scanner in = new Scanner(System.in);
 		System.out.println();
 		System.out.println("@@@@@@@   You can type 'exit' whenever you want to close SERVER!!!   @@@@@@@");
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
+		System.out.println("\n");
 		String command = in.nextLine();
 		if(command.equalsIgnoreCase("exit")){
 			System.exit(0);

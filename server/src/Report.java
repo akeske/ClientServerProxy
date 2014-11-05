@@ -20,7 +20,7 @@ public class Report {
 
     private void setFileHandler(){
         try {
-            fh = new FileHandler("logProxy @ " + Report.format.format(System.currentTimeMillis()) + ".html", true);
+            fh = new FileHandler("logServer @ " + Report.format.format(System.currentTimeMillis()) + ".html", true);
         } catch ( IOException e ) {
             e.printStackTrace();
         }
