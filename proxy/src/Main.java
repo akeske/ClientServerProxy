@@ -42,6 +42,8 @@ public class Main {
 	}
 
 	public static void main(String args[]){
+		System.setProperty("javax.net.ssl.trustStore", "server.jks");
+		System.setProperty("javax.net.ssl.keyStorePassword", "123456");
 		try{
 			int proxyPort = 0;
 			int serverPort = 0;
@@ -73,8 +75,6 @@ public class Main {
 			}
 
 			System.out.println("\n\tServer host: " + serverHost + "\n\tServer port: " + serverPort);
-
-
 
 			InetAddress inetAddr = InetAddress.getLocalHost();
 			System.out.println("\n\tHostname: " + inetAddr.getHostName());

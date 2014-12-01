@@ -13,6 +13,8 @@ public class Main {
     private static InitConnect connection;
 
     public static void main(String[] args) throws IOException {
+		System.setProperty("javax.net.ssl.trustStore", "server.jks");
+		System.setProperty("javax.net.ssl.keyStorePassword", "123456");
         // einai static de xreiazetai instance
         new Report();
         connection = new InitConnect();

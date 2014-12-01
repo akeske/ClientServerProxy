@@ -1,3 +1,6 @@
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -8,7 +11,7 @@ public class Connection implements Runnable {
 
 	private ServerState state;
 	private ClientServer client;
-	private ClientServer server;
+	private ServerSSL server;
 	private String serverIP;
 	private int serverPort;
 
@@ -124,9 +127,10 @@ public class Connection implements Runnable {
 
 		public PushFileToServer(String fileName){
 			this.fileName = fileName;
-			server = new ClientServer();
+			server = new ServerSSL();
 			try{
-				server.setSocket( new Socket(serverIP, serverPort) );
+				SSLSocketFactory sslsocketfactoryServer = (SSLSocketFactory ) SSLSocketFactory.getDefault();
+				server.setSocket( (SSLSocket) sslsocketfactoryServer.createSocket(serverIP, serverPort) );
 			}catch( IOException e ){
 				e.printStackTrace();
 			}

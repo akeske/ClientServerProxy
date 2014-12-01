@@ -1,3 +1,6 @@
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
@@ -13,15 +16,20 @@ public class Main {
 		// einai static de xreiazetai instance
 		new Report();
 		new Thread(new TerminalThread()).start();
-		Socket clientSocket = null;
+		SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+	//	Socket clientSocket = null;
+		SSLSocket sslsocket = null;
 
 		try{
-			ServerSocket connectionSocket = new ServerSocket(port);
+		//	ServerSocket connectionSocket = new ServerSocket(port);
+			SSLServerSocket sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
 			Report.lgr.log(Level.INFO, "Server started", "");
 			while (true) {
 				try {
-					clientSocket = connectionSocket.accept();
-					Connection con = new Connection(clientSocket);
+				//	clientSocket = connectionSocket.accept();
+				//	Connection con = new Connection(clientSocket);
+					sslsocket = (SSLSocket) sslserversocket.accept();
+					ConnectionSSL con = new ConnectionSSL(sslsocket);
 					new Thread(con).start();
 				}catch (SocketTimeoutException e){
 					Report.lgr.log(Level.WARNING, "Timeout Occurred", e);
@@ -34,7 +42,8 @@ public class Main {
 		}finally{
 			Report.getFh().close();
 			try {
-				clientSocket.close();
+			//	clientSocket.close();
+				sslsocket.close();
 			} catch (IOException e) {
 				Report.lgr.log(Level.WARNING, "Could not close port - " + e.getMessage(), e);
 				System.exit(1);
@@ -43,6 +52,8 @@ public class Main {
 	}
 
 	public static void main (String args[]){
+		System.setProperty("javax.net.ssl.keyStore", "server.jks");
+		System.setProperty("javax.net.ssl.keyStorePassword", "123456");
 		try{
 			int port;
 			System.out.print("Please give me your desirable port: ");

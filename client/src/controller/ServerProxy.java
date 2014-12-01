@@ -13,9 +13,7 @@ public class ServerProxy {
     private BufferedReader inString;
     private PrintWriter outString;
 
-    public ServerProxy(){
-
-    }
+    public ServerProxy(){}
 
     public Socket getSocket() {
         return socket;
