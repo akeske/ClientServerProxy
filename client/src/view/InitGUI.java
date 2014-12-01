@@ -155,10 +155,10 @@ public class InitGUI extends JFrame {
         setJMenuBar(generateMenu());
 
         pack();
-    //    setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ico.png")));
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ico.png")));
         setBounds(20, 20, 20, 20);
         setResizable(false);
-        setSize(720, 380);
+        setSize(750, 400);
         if (InitConnect.getSettingsFromFile().getNickName() != null){
 			String message;
 			if(InitConnect.getSettingsFromFile().getAnonym()==true){
