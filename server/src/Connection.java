@@ -40,9 +40,8 @@ public class Connection implements Runnable {
 			try{
 				Main.counter();
 				String command = inFromClientString.readLine();
-				//    System.out.println(command);
 				userName = command.replace(Commands.commandMessages[Commands.COMMAND_USERNAME], "");
-				Report.lgr.log(Level.INFO, userName + " connected with IP: " + clientSocket.getInetAddress(), "");
+				Report.lgr.log(Level.INFO, userName + " connected with IP: " + clientSocket.getInetAddress()+":"+clientSocket.getPort() , "");
 				state.update();
 			}catch(Exception e){
 				clientSocket = null;
@@ -96,13 +95,13 @@ public class Connection implements Runnable {
 		public void update(){
 			try {
 				InetAddress temp = clientSocket.getInetAddress();
-				//    Thread.sleep(2000);
+			//	    Thread.sleep(2000);
 				clientSocket.close();
 				inFromClient.close();
 				outToClient.close();
 				inFromClientString.close();
 				outToClientString.close();
-				Report.lgr.log(Level.INFO, userName + " diconnected with IP: " + temp, "");
+				Report.lgr.log(Level.INFO, userName + " diconnected with IP: " + temp+":"+clientSocket.getPort(), "");
 				state = null;
 				temp = null;
 			} catch (IOException e) {

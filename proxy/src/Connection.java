@@ -5,15 +5,17 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Random;
 import java.util.logging.Level;
 
 public class Connection implements Runnable {
 
 	private ServerState state;
 	private ClientServer client;
-	private ServerSSL server;
+	private SocketSSL socketSSL;
 	private String serverIP;
 	private int serverPort;
+	private Boolean isVolunteer;
 
 	public Connection(String serverIP, int serverPort, Socket clientSocket){
 		this.serverIP = serverIP;
@@ -28,9 +30,22 @@ public class Connection implements Runnable {
 	public void run() {
 		while(!client.getSocket().isClosed()){
 			Main.counter();
-			Report.lgr.log(Level.INFO, "someone connected with IP: " + client.getSocket().getInetAddress(), "");
+			String command = null;
+			try{
+				command = client.getInString().readLine();
+				isVolunteer = Boolean.valueOf( command.replace(Commands.commandMessages[Commands.VOLUNTEER],"") );
+			}catch( IOException e ){
+				e.printStackTrace();
+			}
+			if(isVolunteer==true){
+				Main.volunteers.put( client.getSocket().getPort(), String.valueOf(client.getSocket().getInetAddress()) );
+			}
+			Report.lgr.log(Level.INFO, "someone connected with IP: "+client.getSocket().getInetAddress()+", "+
+					"PORT: "+client.getSocket().getPort()+", volunteer: "+isVolunteer, "");
 			state.update();
 		}
+
+		Main.volunteers.put( client.getSocket().getPort(), String.valueOf(client.getSocket().getInetAddress()) );
 		//     System.out.println(client.getSocket().isClosed());
 		Main.deccounter();
 	}
@@ -127,43 +142,54 @@ public class Connection implements Runnable {
 
 		public PushFileToServer(String fileName){
 			this.fileName = fileName;
-			server = new ServerSSL();
+			socketSSL = new SocketSSL();
+			SSLSocketFactory sslsocketfactoryServer = (SSLSocketFactory ) SSLSocketFactory.getDefault();
 			try{
-				SSLSocketFactory sslsocketfactoryServer = (SSLSocketFactory ) SSLSocketFactory.getDefault();
-				server.setSocket( (SSLSocket) sslsocketfactoryServer.createSocket(serverIP, serverPort) );
+				if(Main.volunteers.size()>=2){
+					Random rn = new Random();
+					int node1 = rn.nextInt(Main.volunteers.size());
+					int node2 = rn.nextInt(Main.volunteers.size());
+					Main.volunteers.get()
+					socketSSL.setSocket( (SSLSocket) sslsocketfactoryServer.createSocket(serverIP, serverPort) );
+					socketSSL.init();
+					socketSSL.getOutString().write(Commands.commandMessages[Commands.COMMAND_USERNAME] + "proxy\n");
+					socketSSL.getOutString().flush();
+				}else{
+					socketSSL.setSocket( (SSLSocket) sslsocketfactoryServer.createSocket(serverIP, serverPort) );
+					socketSSL.init();
+					socketSSL.getOutString().write(Commands.commandMessages[Commands.COMMAND_USERNAME] + "proxy\n");
+					socketSSL.getOutString().flush();
+				}
 			}catch( IOException e ){
 				e.printStackTrace();
 			}
-			server.init();
-			server.getOutString().write(Commands.commandMessages[Commands.COMMAND_USERNAME] + "proxy\n");
-			server.getOutString().flush();
 		}
 
 		@Override
 		public void update() {
 			try{
-				server.getOutString().write(Commands.commandMessages[Commands.COMMAND_UPLOAD_FILE_TO_SERVER_PROXY]+fileName+"\n");
-				server.getOutString().flush();
+				socketSSL.getOutString().write(Commands.commandMessages[Commands.COMMAND_UPLOAD_FILE_TO_SERVER_PROXY]+fileName+"\n");
+				socketSSL.getOutString().flush();
 				Thread.sleep(100);
 				File myFile = new File(fileName);
 				if(!myFile.exists()){
 					throw new FileNotFoundException();
 				}
-				server.getOut().writeBytes(myFile.length() + "\n");
+				socketSSL.getOut().writeBytes(myFile.length() + "\n");
 				byte[] fileBytes = new byte[(int) myFile.length()];
 				BufferedInputStream bufferedInFromFile = new BufferedInputStream(new FileInputStream(myFile));
 				bufferedInFromFile.read(fileBytes, 0, fileBytes.length);
 				bufferedInFromFile.close();
 				Thread.sleep(100);
-				server.getOut().write(fileBytes, 0, fileBytes.length);
-				server.getOut().flush();
+				socketSSL.getOut().write(fileBytes, 0, fileBytes.length);
+				socketSSL.getOut().flush();
 				Thread.sleep(100);
 				//    System.out.println("File sent to server");
 				Report.lgr.log(Level.INFO, "Upload to server completed, file: " + fileName + " - size: "
 						+ myFile.length(), "");
 			}catch(FileNotFoundException e){
 				try {
-					server.getOut().writeBytes(Commands.commandMessages[Commands.COMMAND_FILE_NOT_FOUNT] + "\n");
+					socketSSL.getOut().writeBytes(Commands.commandMessages[Commands.COMMAND_FILE_NOT_FOUNT] + "\n");
 					Report.lgr.log(Level.WARNING, "File not found!", "");
 				} catch (IOException e1) {
 					Report.lgr.log(Level.WARNING, e1.getMessage(), e1);
@@ -173,10 +199,10 @@ public class Connection implements Runnable {
 			} catch (InterruptedException e) {
 				Report.lgr.log(Level.WARNING, e.getMessage(), e);
 			}
-			server.getOutString().write(Commands.commandMessages[Commands.COMMAND_DISCONNECT] + "\n");
-			server.getOutString().flush();
+			socketSSL.getOutString().write(Commands.commandMessages[Commands.COMMAND_DISCONNECT] + "\n");
+			socketSSL.getOutString().flush();
 			Report.lgr.log(Level.INFO, "proxy disconnected from server", "");
-			server.close();
+			socketSSL.close();
 			state = new Authorised();
 			state.update();
 		}

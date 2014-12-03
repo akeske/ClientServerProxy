@@ -1,5 +1,7 @@
 package controller;
 
+import view.InitGUI;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -37,18 +39,31 @@ public class InitConnect {
         loadSettings();
     }
 
-    public void setConnection(){
+    public void setConnection(InitGUI initGUI){
         if(settingsFromFile.getAnonym()==true) {
-            conn = new Connection(this, settingsFromFile.getServerIP(), settingsFromFile.getServerPort(), settingsFromFile.getProxyIP(), settingsFromFile.getProxyPort());
-            conn.initServer();
-            conn.initProxy();
+			try {
+				conn = new Connection(this, settingsFromFile.getServerIP(), settingsFromFile.getServerPort(), settingsFromFile.getProxyIP(), settingsFromFile.getProxyPort());
+				conn.initServer();
+				conn.initProxy();
+			} catch (IOException e) {
+				this.connectionStatus = InitConnect.FAIL_CONNECTION;
+				initGUI.changeGUIStatus();
+				Report.lgr.log(Level.WARNING, e.getMessage(), e);
+			}
         }else{
-            conn = new Connection(this, settingsFromFile.getServerIP(), settingsFromFile.getServerPort() );
-            conn.initServer();
+			try {
+				conn = new Connection(this, settingsFromFile.getServerIP(), settingsFromFile.getServerPort() );
+				conn.initServer();
+			} catch (IOException e) {
+				this.connectionStatus = InitConnect.FAIL_CONNECTION;
+				initGUI.changeGUIStatus();
+				Report.lgr.log(Level.WARNING, e.getMessage(), e);
+			}
+
         }
     }
 
-    public void unSetConnection(){
+    public void unSetConnection(InitGUI initGUI){
         conn.destroy();
         conn = null;
         System.gc();
@@ -80,6 +95,10 @@ public class InitConnect {
 				settingsFromFile.setAnonym(Boolean.parseBoolean(line.split("=")[1] ));
 			}
 			line = readLine();
+			if(line!=null && line.split("=").length==2) {
+				settingsFromFile.setVolunteer(Boolean.parseBoolean(line.split("=")[1] ));
+			}
+			line = readLine();
             if(line!=null && line.split("=").length==2) {
                 settingsFromFile.setNickName(line.split("=")[1]);
             }
@@ -94,7 +113,8 @@ public class InitConnect {
                         "proxy ip: " + InitConnect.getSettingsFromFile().getProxyIP() + ", " +
                         "proxy port: " + InitConnect.getSettingsFromFile().getProxyPort() + ", " +
                         "nickname: " + InitConnect.getSettingsFromFile().getNickName() + ", " +
-                        "be anonymous: " + InitConnect.getSettingsFromFile().getAnonym(), "");
+                        "be anonymous: " + InitConnect.getSettingsFromFile().getAnonym() + ", " +
+						"be volunteer: " + InitConnect.getSettingsFromFile().getVolunteer(), "");
             }
         } catch (FileNotFoundException e) {
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
@@ -115,8 +135,9 @@ public class InitConnect {
     }
 
     public DefaultListModel<String> informServerAboutMyRequestGetList() {
-        return conn.getListFromServer();
-    }
+			return conn.getListFromServer();
+
+	}
 
     public void informServerAboutMyRequestDownload(String selectedFile) {
         conn.getFileFromServer(selectedFile);

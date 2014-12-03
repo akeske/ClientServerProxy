@@ -14,7 +14,7 @@ import java.util.logging.Level;
 
 public class InitGUI extends JFrame {
 
-    Font font = new Font("Serif", Font.BOLD,16);
+    Font font = new Font("Verdana", Font.BOLD,11);
 
     private File selectedFile;
 
@@ -436,7 +436,7 @@ public class InitGUI extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 2;
         progressBar = new JProgressBar();
-        progressBar.setVisible(false);
+		progressBar.setVisible(false);
         panelStatus.add(progressBar, gbc);
 
         return panelStatus;
@@ -588,7 +588,7 @@ public class InitGUI extends JFrame {
             }else if(e.getSource()==close){
             //    System.out.println("selected "+e.getActionCommand());
                 if(connection.connectionStatus==InitConnect.CONNECTED){
-                    connection.unSetConnection();
+                    connection.unSetConnection(mainFrame);
                     Report.lgr.log(Level.INFO, "logout - user: " + InitConnect.getSettingsFromFile().getNickName(), "");
                 }else{
                     Report.lgr.log(Level.INFO, "close program - user: " + InitConnect.getSettingsFromFile().getNickName
@@ -616,8 +616,9 @@ public class InitGUI extends JFrame {
                 connection.connectionStatus = InitConnect.UPLOADING;
                 changeGUIStatus();
                 progressBar.setVisible(true);
-                progressBar.setEnabled(true);
-            //    btnUploadFile.setEnabled(false);
+                progressBar.setIndeterminate(true);
+
+				//    btnUploadFile.setEnabled(false);
                 connection.informServerAboutMyRequestUpload(selectedFile);
 
                 // update jlist
@@ -626,19 +627,19 @@ public class InitGUI extends JFrame {
                 listFilesForDownload.setModel(files);
 
                 progressBar.setVisible(false);
-                progressBar.setEnabled(false);
+                progressBar.setIndeterminate(false);
                 connection.connectionStatus = InitConnect.CONNECTED;
                 changeGUIStatus();
             }else if(e.getSource()==btnDownloadFile){
                 connection.connectionStatus = InitConnect.DOWNLOADING;
                 progressBar.setVisible(true);
-                progressBar.setEnabled(true);
+                progressBar.setIndeterminate(true);
                 changeGUIStatus();
                 connection.informServerAboutMyRequestDownload(stringSelectedFileForDownload);
                 connection.connectionStatus = InitConnect.CONNECTED;
                 changeGUIStatus();
                 progressBar.setVisible(false);
-                progressBar.setEnabled(false);
+                progressBar.setIndeterminate(false);
             }else if(e.getSource()==btnRefreshList){
                 connection.connectionStatus = InitConnect.REFRESHING;
                 changeGUIStatus();
@@ -648,11 +649,20 @@ public class InitGUI extends JFrame {
                 connection.connectionStatus = InitConnect.CONNECTED;
                 changeGUIStatus();
             }else if(e.getSource()==btnConnect){
-                connection.setConnection();
-                changeGUIStatus();
+				progressBar.setVisible(true);
+				progressBar.setIndeterminate(true);
+
+				connection.setConnection(initGUI);
+				changeGUIStatus();
+				progressBar.setVisible(false);
+				progressBar.setIndeterminate(false);
             }else if(e.getSource()==btnDisconnect){
-                connection.unSetConnection();
+				progressBar.setVisible(true);
+				progressBar.setIndeterminate(true);
+                connection.unSetConnection(initGUI);
                 changeGUIStatus();
+				progressBar.setVisible(false);
+				progressBar.setIndeterminate(false);
             }
         }
     }

@@ -12,12 +12,13 @@ class Commands {
     public final static int COMMAND_DISCONNECT = 7;
     public final static int COMMAND_USERNAME = 8;
 	public final static int REPORT = 9;
+	public final static int VOLUNTEER = 10;
 
     public final static String commandMessages[] = {
             "000_UPLOAD_FILE_TO_SERVER_", "001_DOWNLOAD_FILE_FROM_SERVER_",
             "002_FILE_NOT_EXIST", "003_SEND_GET_FILELIST", "004_START_RECEIVING_FILELIST",
             "005_END_RECEIVING_FILELIST",
-            "006_SEND_FILE_SIZE", "007_DISCONNECT", "008_USERNAME_", "REPORT"
+            "006_SEND_FILE_SIZE", "007_DISCONNECT", "008_USERNAME_", "REPORT", "ISVOLUNTEER_"
     };
 
 }

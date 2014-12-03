@@ -1,13 +1,12 @@
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Scanner;
+import java.util.*;
 import java.util.logging.Level;
 
 public class Main {
 
 	private static int counter = 0;
+	public static HashMap<Integer, String> volunteers;
 
 	public Main(String serverHost, int serverPort, int portProxy) throws IOException {
 		// einai static de xreiazetai instance
@@ -44,35 +43,38 @@ public class Main {
 	public static void main(String args[]){
 		System.setProperty("javax.net.ssl.trustStore", "server.jks");
 		System.setProperty("javax.net.ssl.keyStorePassword", "123456");
+
+		volunteers = new HashMap< Integer, String >();
+
 		try{
-			int proxyPort = 0;
-			int serverPort = 0;
+			int proxyPort = 4321;
+			int serverPort = 1234;
 			String serverHost ="127.0.0.1";
 			String portString;
 			String portString2;
 			Scanner in = new Scanner(System.in);
 
             System.out.print("Please give me your desirable SERVER host: ");
-			serverHost = in.nextLine();
-			if(serverHost.isEmpty()){
-				serverHost = "127.0.0.1";
-			}
+		//	serverHost = in.nextLine();
+		//	if(serverHost.isEmpty()){
+		//		serverHost = "127.0.0.1";
+		//	}
 
 			System.out.print("Please give me your desirable SERVER port: ");
-			portString = in.nextLine();
-			if(portString.isEmpty()){
-				serverPort = 1234;
-			}else{
-				serverPort = Integer.parseInt(portString);
-			}
+		//	portString = in.nextLine();
+		//	if(portString.isEmpty()){
+		//		serverPort = 1234;
+		//	}else{
+		//		serverPort = Integer.parseInt(portString);
+		//	}
 
 			System.out.print("Please give me your desirable PROXY port: ");
-			portString2 = in.nextLine();
-			if(portString2.isEmpty()){
-				proxyPort = 4321;
-			}else{
-				proxyPort = Integer.parseInt(portString2);
-			}
+		//	portString2 = in.nextLine();
+		//	if(portString2.isEmpty()){
+		//		proxyPort = 4321;
+		//	}else{
+		//		proxyPort = Integer.parseInt(portString2);
+		//	}
 
 			System.out.println("\n\tServer host: " + serverHost + "\n\tServer port: " + serverPort);
 
@@ -111,12 +113,10 @@ public class Main {
 
 	static synchronized void counter(){
 		counter++;
-		//    System.out.println(counter);
 	}
 
 	static synchronized void deccounter(){
 		counter--;
-		//    System.out.println(counter);
 	}
 }
 
@@ -126,11 +126,22 @@ class TerminalThread implements Runnable{
 	public void run() {
 		Scanner in = new Scanner(System.in);
 		System.out.println();
-		System.out.println("@@@@@@@   You can type 'exit' whenever you want to close PROXY!!!   @@@@@@@");
+		System.out.println("@@@@@@@      You can type 'exit' whenever you want to close PROXY!!!       @@@@@@@");
+		System.out.println("@@@@@@@   You can type 'display' to display users and who are volunteers   @@@@@@@");
 		System.out.println("\n");
-		String command = in.nextLine();
-		if(command.equalsIgnoreCase("exit")){
-			System.exit(0);
+		while(true){
+			String command = in.nextLine();
+			if( command.equalsIgnoreCase("exit") ){
+				System.exit(0);
+			}
+			if( command.equalsIgnoreCase("display") ){
+				System.out.println("  Total volunteers: "+Main.volunteers.size());
+				Iterator<Integer> keySetIterator = Main.volunteers.keySet().iterator();
+				while(keySetIterator.hasNext()){
+					Integer key = keySetIterator.next();
+					System.out.println("    PORT: " + key + ", IP: " + Main.volunteers.get(key));
+				}
+			}
 		}
 	}
 }

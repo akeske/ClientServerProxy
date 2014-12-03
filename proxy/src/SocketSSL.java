@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.logging.Level;
 
-public class ServerSSL{
+public class SocketSSL{
 
 	private SSLSocket sslSocket;
 	private BufferedReader in;
@@ -11,7 +11,7 @@ public class ServerSSL{
 	private BufferedReader inString;
 	private PrintWriter outString;
 
-	public ServerSSL(){ }
+	public SocketSSL(){ }
 
 	public void init(){
 		try{

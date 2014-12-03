@@ -24,54 +24,39 @@ public class Connection {
         anonym = initConnect.getSettingsFromFile().getAnonym();
     }
 
-    public Connection(InitConnect initConnect, String serverIP, String serverPort, String proxyIP, String proxyPort){
+    public Connection(InitConnect initConnect, String serverIP, String serverPort, String proxyIP, String proxyPort) throws IOException {
         this(initConnect);
         server = new ServerProxySSL();
         proxy = new ServerProxy();
-        try{
         //    server.setSocket( new Socket(serverIP, Integer.parseInt(serverPort)) );
-			SSLSocketFactory sslsocketfactoryServer = (SSLSocketFactory ) SSLSocketFactory.getDefault();
-			server.setSocket( (SSLSocket) sslsocketfactoryServer.createSocket(serverIP, Integer.parseInt(serverPort)) );
-            server.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
-            server.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
-            server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),"UTF-8")) );
-            server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),"UTF-8")) );
-        } catch ( UnknownHostException e ) {
-            Report.lgr.log(Level.WARNING, e.getMessage(), e);
-        } catch ( IOException e ) {
-            Report.lgr.log(Level.WARNING, e.getMessage(), e);
-        }
-        try{
-            proxy.setSocket( new Socket(proxyIP, Integer.parseInt(proxyPort)) );
-            proxy.setIn( new BufferedReader(new InputStreamReader(proxy.getSocket().getInputStream())) );
-            proxy.setOut( new DataOutputStream(proxy.getSocket().getOutputStream()) );
-            proxy.setInString( new BufferedReader(new InputStreamReader (proxy.getSocket().getInputStream(),"UTF-8")) );
-            proxy.setOutString( new PrintWriter(new OutputStreamWriter(proxy.getSocket().getOutputStream(), "UTF-8")) );
-        } catch ( UnknownHostException e ) {
-            Report.lgr.log(Level.WARNING, e.getMessage(), e);
-        } catch ( IOException e ) {
-            Report.lgr.log(Level.WARNING, e.getMessage(), e);
-        }
+		SSLSocketFactory sslsocketfactoryServer = (SSLSocketFactory ) SSLSocketFactory.getDefault();
+		server.setSocket( (SSLSocket) sslsocketfactoryServer.createSocket(serverIP, Integer.parseInt(serverPort)) );
+        server.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
+        server.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
+        server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),"UTF-8")) );
+        server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),"UTF-8")) );
+
+		proxy.setSocket( new Socket(proxyIP, Integer.parseInt(proxyPort)) );
+        proxy.setIn( new BufferedReader(new InputStreamReader(proxy.getSocket().getInputStream())) );
+        proxy.setOut( new DataOutputStream(proxy.getSocket().getOutputStream()) );
+        proxy.setInString( new BufferedReader(new InputStreamReader (proxy.getSocket().getInputStream(),"UTF-8")) );
+        proxy.setOutString( new PrintWriter(new OutputStreamWriter(proxy.getSocket().getOutputStream(), "UTF-8")) );
     }
 
-    public Connection(InitConnect initConnect, String serverIP, String serverPort) {
+    public Connection(InitConnect initConnect, String serverIP, String serverPort) throws IOException {
         this(initConnect);
     //    server = new ServerProxy();
 		server = new  ServerProxySSL();
-        try{
+
         //    server.setSocket( new Socket(serverIP, Integer.parseInt(serverPort)) );
-			SSLSocketFactory sslsocketfactoryServer = (SSLSocketFactory ) SSLSocketFactory.getDefault();
-			server.setSocket( (SSLSocket) sslsocketfactoryServer.createSocket(serverIP, Integer.parseInt(serverPort)) );
-            server.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
-            server.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
-            server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),"UTF-8")) );
-            server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),"UTF-8")) );
-        } catch ( UnknownHostException e ) {
-            Report.lgr.log(Level.WARNING, e.getMessage(), e);
-        } catch ( IOException e ) {
-            Report.lgr.log(Level.WARNING, e.getMessage(), e);
-        }
-    }
+		SSLSocketFactory sslsocketfactoryServer = (SSLSocketFactory ) SSLSocketFactory.getDefault();
+		server.setSocket( (SSLSocket) sslsocketfactoryServer.createSocket(serverIP, Integer.parseInt(serverPort)) );
+        server.setIn( new BufferedReader(new InputStreamReader(server.getSocket().getInputStream())) );
+        server.setOut( new DataOutputStream(server.getSocket().getOutputStream()) );
+        server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),"UTF-8")) );
+        server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),"UTF-8")) );
+
+	}
 
 	//    public ServerProxy getProxy() {
 	public ServerProxy getProxy() { return proxy; }
@@ -118,6 +103,9 @@ public class Connection {
 				if( ! proxy.getSocket().isClosed() ){
 					try{
 						initConnect.connectionStatus = InitConnect.CONNECTED;
+						proxy.getOutString().write(Commands.commandMessages[Commands.VOLUNTEER] +
+								initConnect.getSettingsFromFile().getVolunteer() + "\n");
+						proxy.getOutString().flush();
 						Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName()+" connected with "+
 								"proxy: "+proxy.getSocket().getInetAddress()+":"+proxy.getSocket().getPort(), "");
 						state = new StateConnect();
@@ -220,17 +208,13 @@ public class Connection {
         }
 
         @Override
-        public void execute(){}
+        public void execute(){ }
 
 		@Override
-		public void executePush( ServerProxy temp ){
-
-		}
+		public void executePush( ServerProxy temp ){ }
 
 		@Override
-		public void executePush( ServerProxySSL temp ){
-
-		}
+		public void executePush( ServerProxySSL temp ){ }
 	}
 
     private class StateDisconnect implements State{

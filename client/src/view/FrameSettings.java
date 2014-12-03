@@ -35,10 +35,11 @@ public class FrameSettings extends JDialog{
     private JButton btnCancel;
 
 	private JCheckBox checkBoxAnonym;
+	private JCheckBox checkBoxVolunteer;
 
     private InitGUI mainFrame;
 
-    public FrameSettings(InitGUI mainFrame){
+	public FrameSettings(InitGUI mainFrame){
         // trexei to constructor tis JDialog
         // dilwnoume ws parent frame tis arxiki mainFrame tou programmatos
         super(mainFrame);
@@ -57,6 +58,7 @@ public class FrameSettings extends JDialog{
 		getTxtFieldProxyIP().setText(InitConnect.getSettingsFromFile().getProxyIP());
 		getTxtFieldProxyPort().setText(InitConnect.getSettingsFromFile().getProxyPort());
 		getCheckBoxAnonym().setSelected(InitConnect.getSettingsFromFile().getAnonym());
+		getCheckBoxVolunteer().setSelected(InitConnect.getSettingsFromFile().getVolunteer());
         getTxtNickName().setText(InitConnect.getSettingsFromFile().getNickName());
 
         setBounds(20, 20, 20, 20);
@@ -172,12 +174,36 @@ public class FrameSettings extends JDialog{
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.gridheight = 1;
-		gbc.gridwidth = 2;
+		gbc.gridwidth = 1;
 		gbc.weightx = 1.0;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.insets = insets;
 		panelProxy.add(checkBoxAnonym, gbc);
+
+		panelProxy.setLayout(new GridBagLayout());
+		checkBoxVolunteer = new JCheckBox("be volunteer");
+		checkBoxVolunteer.addKeyListener(new keyListenerEnterEscape(this));
+		checkBoxVolunteer.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange()==ItemEvent.SELECTED){
+					//	boolAnonym = true;
+				}else{
+					//	boolAnonym = false;
+				}
+			}
+		});
+		gbc = new GridBagConstraints();
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.gridheight = 1;
+		gbc.gridwidth = 1;
+		gbc.weightx = 1.0;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = insets;
+		panelProxy.add(checkBoxVolunteer, gbc);
 
         labelIP = new JLabel("IP address");
         labelIP.addKeyListener(new keyListenerEnterEscape(this));
@@ -331,6 +357,8 @@ public class FrameSettings extends JDialog{
 			output.newLine();
 			output.write("anonym=" + getCheckBoxAnonym().isSelected());
 			output.newLine();
+			output.write("volunteer=" + getCheckBoxVolunteer().isSelected());
+			output.newLine();
             output.write("nickname=" + txtNickName.getText());
             output.close();
 			InitConnect.getSettingsFromFile().setServerIP(getTxtFieldServerIP().getText());
@@ -338,6 +366,7 @@ public class FrameSettings extends JDialog{
 			InitConnect.getSettingsFromFile().setProxyIP(getTxtFieldProxyIP().getText());
 			InitConnect.getSettingsFromFile().setProxyPort(getTxtFieldProxyPort().getText());
 			InitConnect.getSettingsFromFile().setAnonym(getCheckBoxAnonym().isSelected());
+			InitConnect.getSettingsFromFile().setVolunteer(getCheckBoxVolunteer().isSelected());
             InitConnect.getSettingsFromFile().setNickName(getTxtNickName().getText());
             JOptionPane.showMessageDialog(this, "The settings were saved!", "Inform message",  JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
@@ -346,6 +375,14 @@ public class FrameSettings extends JDialog{
                     JOptionPane.ERROR_MESSAGE );
         }
     }
+
+	public JCheckBox getCheckBoxVolunteer(){
+		return checkBoxVolunteer;
+	}
+
+	public void setCheckBoxVolunteer( JCheckBox checkBoxVolunteer ){
+		this.checkBoxVolunteer = checkBoxVolunteer;
+	}
 
 	public JCheckBox getCheckBoxAnonym() {
 		return checkBoxAnonym;
@@ -410,10 +447,13 @@ public class FrameSettings extends JDialog{
             }else if(e.getSource()==btnOK){
                 frameSettings.saveSettings();
                 frameSettings.dispose();
-				String message;
-				if(checkBoxAnonym.isSelected()==true) message = "enable"; else message = "disable";
+				String messageA;
+				String messageV;
+				if(checkBoxAnonym.isSelected()==true) messageA = "enable"; else messageA = "disable";
+				if(checkBoxVolunteer.isSelected()==true) messageV = "enablev"; else messageV = "disable";
                 mainFrame.setTitle("Cleint " + InitConnect.getSettingsFromFile().getNickName() + " - " + "anonymous" +
-						" is " + message );
+						" is " + messageA + " - " + "volunteer" +
+						" is " + messageV );
             }
         }
     }

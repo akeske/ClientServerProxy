@@ -7,7 +7,17 @@ public class POJOSettings {
     private String proxyIP;
     private String proxyPort;
     private String nickName;
+
+	public Boolean getVolunteer(){
+		return volunteer;
+	}
+
+	public void setVolunteer( Boolean volunteer ){
+		this.volunteer = volunteer;
+	}
+
 	private Boolean anonym;
+	private Boolean volunteer;
 
 	public Boolean getAnonym() {
 		return anonym;
