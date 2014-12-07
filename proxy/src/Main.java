@@ -6,10 +6,10 @@ import java.util.logging.Level;
 public class Main {
 
 	private static int counter = 0;
-	public static ArrayList<Connection> volunteerConnection;
+	public static HashMap<Integer, String> volunteers;
 
 	public Main(String serverHost, int serverPort, int portProxy) throws IOException {
-
+		// einai static de xreiazetai instance
 		new Report();
 		new Thread(new TerminalThread()).start();
 		Socket clientSocket = null;
@@ -44,7 +44,7 @@ public class Main {
 		System.setProperty("javax.net.ssl.trustStore", "server.jks");
 		System.setProperty("javax.net.ssl.keyStorePassword", "123456");
 
-		volunteerConnection = new ArrayList<Connection>();
+		volunteers = new HashMap< Integer, String >();
 
 		try{
 			int proxyPort = 4321;
@@ -127,25 +127,20 @@ class TerminalThread implements Runnable{
 		Scanner in = new Scanner(System.in);
 		System.out.println();
 		System.out.println("@@@@@@@      You can type 'exit' whenever you want to close PROXY!!!       @@@@@@@");
-		System.out.println("@@@@@@@    You can type 'vol' to display users and who are volunteers      @@@@@@@");
+		System.out.println("@@@@@@@   You can type 'display' to display users and who are volunteers   @@@@@@@");
 		System.out.println("\n");
 		while(true){
 			String command = in.nextLine();
 			if( command.equalsIgnoreCase("exit") ){
 				System.exit(0);
 			}
-			if( command.equalsIgnoreCase("vol") ){
-				System.out.println("  Total volunteers: " + Main.volunteerConnection.size());
-				Iterator<Connection> ite = Main.volunteerConnection.iterator();
-				while(ite.hasNext()){
-					Connection c = ite.next();
-					System.out.println("    IP: " + c.getIP() + ", PORT: " + c.getPort());
+			if( command.equalsIgnoreCase("display") ){
+				System.out.println("  Total volunteers: "+Main.volunteers.size());
+				Iterator<Integer> keySetIterator = Main.volunteers.keySet().iterator();
+				while(keySetIterator.hasNext()){
+					Integer key = keySetIterator.next();
+					System.out.println("    PORT: " + key + ", IP: " + Main.volunteers.get(key));
 				}
-			}
-			if( command.equalsIgnoreCase("clear") ){
-				Main.volunteerConnection.clear();
-				System.out.println("You just clear the cashe!");
-				System.out.println("  Total volunteers: " + Main.volunteerConnection.size());
 			}
 		}
 	}

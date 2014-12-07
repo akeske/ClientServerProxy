@@ -2,22 +2,14 @@ package controller;
 
 import view.InitGUI;
 
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.util.logging.Level;
 
 public class InitConnect {
 
     public int connectionStatus;
-	public static int volPort;
 
     public final static int FAIL_CONNECTION = 0;
     public final static int DISCONNECTED = 1;
@@ -51,47 +43,13 @@ public class InitConnect {
         if(settingsFromFile.getAnonym()==true) {
 			try {
 				conn = new Connection(this, settingsFromFile.getServerIP(), settingsFromFile.getServerPort(), settingsFromFile.getProxyIP(), settingsFromFile.getProxyPort());
+				conn.initServer();
+				conn.initProxy();
 			} catch (IOException e) {
 				this.connectionStatus = InitConnect.FAIL_CONNECTION;
 				initGUI.changeGUIStatus();
 				Report.lgr.log(Level.WARNING, e.getMessage(), e);
 			}
-			if(settingsFromFile.getVolunteer()==true){
-
-				new Thread(new Runnable(){
-					Socket socket = null;
-					ServerSocket clientServerSocket = null;
-					@Override
-					public void run(){
-						try{
-							clientServerSocket = new ServerSocket(0);
-							volPort = clientServerSocket.getLocalPort();
-							Report.lgr.log(Level.INFO, "Volunteer port: " + clientServerSocket.getLocalPort(), "");
-							while( true ){
-								try{
-									socket = clientServerSocket.accept();
-									ConnectionVolunteer con = new ConnectionVolunteer(socket, volPort, conn);
-									new Thread(con).start();
-								}catch( SocketTimeoutException e ){
-									Report.lgr.log(Level.WARNING, "Timeout Occurred", e);
-								}
-							}
-						}catch( SocketException e ){
-							Report.lgr.log(Level.WARNING, e.getMessage(), e);
-						}catch( IOException e ){
-							Report.lgr.log(Level.WARNING, e.getMessage(), e);
-						}finally{
-							try{
-								socket.close();
-							}catch( IOException e ){
-								Report.lgr.log(Level.WARNING, "Could not close port - "+e.getMessage(), e);
-							}
-						}
-					}
-				}).start();
-			}
-			conn.initServer();
-			conn.initProxy();
         }else{
 			try {
 				conn = new Connection(this, settingsFromFile.getServerIP(), settingsFromFile.getServerPort() );
@@ -138,7 +96,7 @@ public class InitConnect {
 			}
 			line = readLine();
 			if(line!=null && line.split("=").length==2) {
-				settingsFromFile.setVolunteer(Boolean.parseBoolean(line.split("=")[1]));
+				settingsFromFile.setVolunteer(Boolean.parseBoolean(line.split("=")[1] ));
 			}
 			line = readLine();
             if(line!=null && line.split("=").length==2) {

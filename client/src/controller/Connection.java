@@ -14,7 +14,6 @@ public class Connection {
 	ServerProxy proxy;
 
     public boolean anonym;
-	public boolean volunteer;
 
     public State state;
     public InitConnect initConnect;
@@ -23,7 +22,6 @@ public class Connection {
         this.initConnect = initConnect;
         initConnect.connectionStatus = InitConnect.CONNECTING;
         anonym = initConnect.getSettingsFromFile().getAnonym();
-		volunteer = initConnect.getSettingsFromFile().getVolunteer();
     }
 
     public Connection(InitConnect initConnect, String serverIP, String serverPort, String proxyIP, String proxyPort) throws IOException {
@@ -38,7 +36,7 @@ public class Connection {
         server.setInString( new BufferedReader(new InputStreamReader (server.getSocket().getInputStream(),"UTF-8")) );
         server.setOutString( new PrintWriter(new OutputStreamWriter(server.getSocket().getOutputStream(),"UTF-8")) );
 
-		proxy.setSocket(new Socket(proxyIP, Integer.parseInt(proxyPort)));
+		proxy.setSocket( new Socket(proxyIP, Integer.parseInt(proxyPort)) );
         proxy.setIn( new BufferedReader(new InputStreamReader(proxy.getSocket().getInputStream())) );
         proxy.setOut( new DataOutputStream(proxy.getSocket().getOutputStream()) );
         proxy.setInString( new BufferedReader(new InputStreamReader (proxy.getSocket().getInputStream(),"UTF-8")) );
@@ -108,16 +106,6 @@ public class Connection {
 						proxy.getOutString().write(Commands.commandMessages[Commands.VOLUNTEER] +
 								initConnect.getSettingsFromFile().getVolunteer() + "\n");
 						proxy.getOutString().flush();
-						Thread.sleep(50);
-						if(volunteer==true){
-							proxy.getOutString().write(Commands.commandMessages[Commands.COMMAND_NODE_IP] +
-									this.getClientSocket().getInetAddress() + "\n");
-							proxy.getOutString().flush();
-							Thread.sleep(50);
-							proxy.getOutString().write(Commands.commandMessages[Commands.COMMAND_NODE_PORT] +
-									initConnect.volPort + "\n");
-							proxy.getOutString().flush();
-						}
 						Report.lgr.log(Level.INFO, InitConnect.getSettingsFromFile().getNickName()+" connected with "+
 								"proxy: "+proxy.getSocket().getInetAddress()+":"+proxy.getSocket().getPort(), "");
 						state = new StateConnect();
@@ -239,10 +227,14 @@ public class Connection {
         public void execute() {}
 
 		@Override
-		public void executePush( ServerProxy temp ){ }
+		public void executePush( ServerProxy temp ){
+
+		}
 
 		@Override
-		public void executePush( ServerProxySSL temp ){ }
+		public void executePush( ServerProxySSL temp ){
+
+		}
 	}
 
     private class StateGetListFromServer implements State{
@@ -250,10 +242,14 @@ public class Connection {
         public void execute() {}
 
 		@Override
-		public void executePush( ServerProxy temp ){ }
+		public void executePush( ServerProxy temp ){
+
+		}
 
 		@Override
-		public void executePush( ServerProxySSL temp ){ }
+		public void executePush( ServerProxySSL temp ){
+
+		}
 
 		@Override
         public DefaultListModel<String> executeGetList() {
@@ -291,7 +287,9 @@ public class Connection {
         }
 
 		@Override
-		public void execute(){ }
+		public void execute(){
+
+		}
 
 		public void executePush(ServerProxy temp) {
             try{
@@ -392,12 +390,12 @@ public class Connection {
                 String fileExists = server.getIn().readLine();
                 if(!fileExists.equals(Commands.commandMessages[Commands.COMMAND_FILE_NOT_FOUNT])){
                     int fileSize = Integer.parseInt(fileExists);
-                //	System.out.println(fileSize);
+                //    System.out.println(fileSize);
                     byte[] mybytearray = new byte[fileSize];
                     DataInputStream is = new DataInputStream(server.getSocket().getInputStream());
                     FileOutputStream fos = new FileOutputStream(fileName);
                     BufferedOutputStream bos = new BufferedOutputStream(fos);
-                //	outToServer.writeBytes(Commands.commandMessages[Commands.COMMAND_SEND_FILE_SIZE]);
+                    //        outToServer.writeBytes(Commands.commandMessages[Commands.COMMAND_SEND_FILE_SIZE]);
                     int bytesRead = 0;
                     while(bytesRead < fileSize-1){
                         bytesRead+=is.read(mybytearray, bytesRead, mybytearray.length - bytesRead);
@@ -416,9 +414,13 @@ public class Connection {
         }
 
 		@Override
-		public void executePush( ServerProxy temp ){ }
+		public void executePush( ServerProxy temp ){
+
+		}
 
 		@Override
-		public void executePush( ServerProxySSL temp ){ }
+		public void executePush( ServerProxySSL temp ){
+
+		}
 	}
 }
