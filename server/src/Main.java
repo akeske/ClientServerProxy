@@ -3,7 +3,6 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -21,13 +20,10 @@ public class Main {
 		SSLSocket sslsocket = null;
 
 		try{
-		//	ServerSocket connectionSocket = new ServerSocket(port);
 			SSLServerSocket sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
 			Report.lgr.log(Level.INFO, "Server started", "");
 			while (true) {
 				try {
-				//	clientSocket = connectionSocket.accept();
-				//	Connection con = new Connection(clientSocket);
 					sslsocket = (SSLSocket) sslserversocket.accept();
 					ConnectionSSL con = new ConnectionSSL(sslsocket);
 					new Thread(con).start();

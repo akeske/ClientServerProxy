@@ -1,9 +1,8 @@
 package controller;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.util.logging.Level;
 
 public class ServerProxy {
 
@@ -14,6 +13,17 @@ public class ServerProxy {
     private PrintWriter outString;
 
     public ServerProxy(){}
+
+	public void init(){
+		try{
+			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			out = new DataOutputStream(socket.getOutputStream());
+			inString = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+			outString = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+		}catch(Exception e){
+			Report.lgr.log(Level.WARNING, e.getMessage(), e);
+		}
+	}
 
     public Socket getSocket() {
         return socket;
