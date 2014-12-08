@@ -368,7 +368,7 @@ public class FrameSettings extends JDialog{
 			InitConnect.getSettingsFromFile().setAnonym(getCheckBoxAnonym().isSelected());
 			InitConnect.getSettingsFromFile().setVolunteer(getCheckBoxVolunteer().isSelected());
             InitConnect.getSettingsFromFile().setNickName(getTxtNickName().getText());
-            JOptionPane.showMessageDialog(this, "The settings were saved!", "Inform message",  JOptionPane.INFORMATION_MESSAGE);
+      //      JOptionPane.showMessageDialog(this, "The settings were saved!", "Inform message",  JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
             Report.lgr.log(Level.WARNING, e.getMessage(), e);
             JOptionPane.showMessageDialog(this, "The settings were NOT saved!", "Problem with saving the settings!",
@@ -450,7 +450,7 @@ public class FrameSettings extends JDialog{
 				String messageA;
 				String messageV;
 				if(checkBoxAnonym.isSelected()==true) messageA = "enable"; else messageA = "disable";
-				if(checkBoxVolunteer.isSelected()==true) messageV = "enablev"; else messageV = "disable";
+				if(checkBoxVolunteer.isSelected()==true) messageV = "enable"; else messageV = "disable";
                 mainFrame.setTitle("Cleint " + InitConnect.getSettingsFromFile().getNickName() + " - " + "anonymous" +
 						" is " + messageA + " - " + "volunteer" +
 						" is " + messageV );

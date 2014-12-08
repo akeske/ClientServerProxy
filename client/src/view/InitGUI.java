@@ -161,13 +161,18 @@ public class InitGUI extends JFrame {
         setSize(750, 400);
         if (InitConnect.getSettingsFromFile().getNickName() != null){
 			String message;
+			String message2;
 			if(InitConnect.getSettingsFromFile().getAnonym()==true){
 				message = "enable";
 			}else{
 				message = "disable";
 			}
-            setTitle("Client " + InitConnect.getSettingsFromFile().getNickName() + " - " + "anonymous is " +
-					message );
+			if(InitConnect.getSettingsFromFile().getVolunteer()==true){
+				message2 = "enable";
+			}else{
+				message2 = "disable";
+			}
+            setTitle("Client " + InitConnect.getSettingsFromFile().getNickName() + " - " + "anonymous is " +	message + " - " + "volunteer is " + message2);
         }else {
             setTitle("Client");
         }

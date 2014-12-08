@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -96,7 +97,7 @@ public class Connection implements Runnable {
 		public void update(){
 			InetAddress tempIP = client.getSocket().getInetAddress();
 			int tempPort = client.getSocket().getPort();
-			Main.volunteerConnection.remove(this);
+			Main.volunteerConnection.remove(Connection.this);
 			try{
 				client.getSocket().close();
 			}catch( IOException e ){
@@ -135,9 +136,8 @@ public class Connection implements Runnable {
 					}
 					bos.write(mybytearray, 0, bytesRead);
 					bos.close();
-					Thread.sleep(100);
-					Report.lgr.log(Level.INFO, client.getSocket().getInetAddress() + " uploaded: " + fileName + " - size: " +
-							fileSize, "");
+					Thread.sleep(10);
+					Report.lgr.log(Level.INFO, client.getSocket().getInetAddress()+" uploaded: "+fileName + " - size: "+fileSize, "");
 				}else{
 					throw new FileNotFoundException();
 				}
@@ -168,7 +168,7 @@ public class Connection implements Runnable {
 				socketSSL.init();
 				socketSSL.getOutString().write(Commands.commandMessages[Commands.COMMAND_USERNAME] + "proxy\n");
 				socketSSL.getOutString().flush();
-				Thread.sleep(50);
+				Thread.sleep(10);
 			}catch( IOException e ){
 				Report.lgr.log(Level.WARNING, e.getMessage(), e);
 			}catch( InterruptedException e ){
@@ -181,7 +181,7 @@ public class Connection implements Runnable {
 			try{
 				socketSSL.getOutString().write(Commands.commandMessages[Commands.COMMAND_UPLOAD_FILE_TO_SERVER_PROXY]+fileName+"\n");
 				socketSSL.getOutString().flush();
-				Thread.sleep(50);
+				Thread.sleep(10);
 				File myFile = new File(fileName);
 				if(!myFile.exists()){
 					throw new FileNotFoundException();
@@ -191,10 +191,10 @@ public class Connection implements Runnable {
 				BufferedInputStream bufferedInFromFile = new BufferedInputStream(new FileInputStream(myFile));
 				bufferedInFromFile.read(fileBytes, 0, fileBytes.length);
 				bufferedInFromFile.close();
-				Thread.sleep(50);
+				Thread.sleep(10);
 				socketSSL.getOut().write(fileBytes, 0, fileBytes.length);
 				socketSSL.getOut().flush();
-				Thread.sleep(100);
+				Thread.sleep(10);
 				//    System.out.println("File sent to server");
 				Report.lgr.log(Level.INFO, "Upload to server completed, file: " + fileName + " - size: "
 						+ myFile.length(), "");
@@ -212,7 +212,7 @@ public class Connection implements Runnable {
 			}
 			socketSSL.getOutString().write(Commands.commandMessages[Commands.COMMAND_DISCONNECT] + "\n");
 			socketSSL.getOutString().flush();
-			Report.lgr.log(Level.INFO, "proxy disconnected from server", "");
+			Report.lgr.log(Level.INFO, "Proxy disconnected from server", "");
 			try{
 				socketSSL.getSocket().close();
 			}catch( IOException e ){
@@ -231,25 +231,45 @@ public class Connection implements Runnable {
 			this.fileName = fileName;
 			socket = new ServerSocket();
 			try{
-				ArrayList<Connection> temp = Main.volunteerConnection;
-				temp.remove(this);
+				ArrayList<Connection> temp = new ArrayList<Connection>();
+			//	temp.remove(this);
+				System.out.println(getIP()+":"+getPort());
 				Connection tempCon;
+				Iterator<Connection> it = Main.volunteerConnection.iterator();
+				// afairei ton euato tou
+				while(it.hasNext()){
+					Connection c = it.next();
+					if(c.getPort()!=getPort() && c.getIP()!=getIP()){
+						temp.add(c);
+					}
+				}
 				for(int i=0; i<temp.size(); i++){
-					System.out.println(temp.get(i).getIP() + ":" + temp.get(i).getPort());
+					System.out.println(" Possible client-proxies"+temp.get(i).getIP()+":"+temp.get(i).getPort());
 				}
 				int key;
 
 				key = new Random().nextInt(temp.size());
 				tempCon = temp.get(key);
 				int node1Port = Integer.valueOf(tempCon.getPort());
-				String node1IP = tempCon.getIP().replace("/", "");
+				String node1IP;
+				if(OsCheck.getOperatingSystemType()==OsCheck.OSType.Linux){
+					node1IP = tempCon.getIP().replace("localhost/", "");
+				}else{
+					node1IP = tempCon.getIP().replace("/", "");
+				}
+				// afairei ton prwto node apo tin lista gia na min ksanaxrisimopoihthei
 				temp.remove(tempCon);
 				tempCon = null;
 
 				key = new Random().nextInt(temp.size());
 				tempCon = temp.get(key);
 				int node2Port = Integer.valueOf(tempCon.getPort());
-				String node2IP = tempCon.getIP().replace("/", "");
+				String node2IP;
+				if(OsCheck.getOperatingSystemType()==OsCheck.OSType.Linux){
+					node2IP = tempCon.getIP().replace("localhost/", "");
+				}else{
+					node2IP = tempCon.getIP().replace("/", "");
+				}
 				tempCon = null;
 				temp = null;
 
@@ -261,16 +281,16 @@ public class Connection implements Runnable {
 
 				socket.getOutString().write(Commands.commandMessages[Commands.COMMAND_USERNAME]+"anonym\n");
 				socket.getOutString().flush();
-				Thread.sleep(50);
+				Thread.sleep(10);
 				socket.getOutString().write(Commands.commandMessages[Commands.COMMAND_HOOP]+"1\n");
 				socket.getOutString().flush();
-				Thread.sleep(50);
+				Thread.sleep(10);
 				socket.getOutString().write(Commands.commandMessages[Commands.COMMAND_NEXT_NODE_IP]+node2IP+"\n");
 				socket.getOutString().flush();
-				Thread.sleep(50);
+				Thread.sleep(10);
 				socket.getOutString().write(Commands.commandMessages[Commands.COMMAND_NEXT_NODE_PORT]+node2Port+"\n");
 				socket.getOutString().flush();
-				Thread.sleep(50);
+				Thread.sleep(10);
 			}catch( IOException e ){
 				Report.lgr.log(Level.WARNING, e.getMessage(), e);
 			}catch( InterruptedException e ){
@@ -283,7 +303,7 @@ public class Connection implements Runnable {
 			try{
 				socket.getOutString().write(Commands.commandMessages[Commands.COMMAND_UPLOAD_FILE_TO_SERVER_PROXY]+fileName+"\n");
 				socket.getOutString().flush();
-				Thread.sleep(50);
+				Thread.sleep(10);
 				File myFile = new File(fileName);
 				if(!myFile.exists()){
 					throw new FileNotFoundException();
@@ -293,10 +313,10 @@ public class Connection implements Runnable {
 				BufferedInputStream bufferedInFromFile = new BufferedInputStream(new FileInputStream(myFile));
 				bufferedInFromFile.read(fileBytes, 0, fileBytes.length);
 				bufferedInFromFile.close();
-				Thread.sleep(50);
+				Thread.sleep(10);
 				socket.getOut().write(fileBytes, 0, fileBytes.length);
 				socket.getOut().flush();
-				Thread.sleep(100);
+				Thread.sleep(10);
 				//    System.out.println("File sent to server");
 				Report.lgr.log(Level.INFO, "Upload to node1 completed, file: " + fileName + " - size: "
 						+ myFile.length(), "");
@@ -325,11 +345,10 @@ public class Connection implements Runnable {
 		}
 	}
 
-	public String getIP(){
-		return IP;
-	}
+	public String getIP(){ return IP; }
 
 	public String getPort(){
 		return Port;
 	}
+
 }

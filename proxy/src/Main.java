@@ -59,26 +59,26 @@ public class Main {
 			Scanner in = new Scanner(System.in);
 
             System.out.print("Please give me your desirable SERVER host: ");
-		//	serverHost = in.nextLine();
-		//	if(serverHost.isEmpty()){
-		//		serverHost = "127.0.0.1";
-		//	}
+			serverHost = in.nextLine();
+			if(serverHost.isEmpty()){
+				serverHost = "127.0.0.1";
+			}
 
 			System.out.print("Please give me your desirable SERVER port: ");
-		//	portString = in.nextLine();
-		//	if(portString.isEmpty()){
-		//		serverPort = 1234;
-		//	}else{
-		//		serverPort = Integer.parseInt(portString);
-		//	}
+			portString = in.nextLine();
+			if(portString.isEmpty()){
+				serverPort = 1234;
+			}else{
+				serverPort = Integer.parseInt(portString);
+			}
 
 			System.out.print("Please give me your desirable PROXY port: ");
-		//	portString2 = in.nextLine();
-		//	if(portString2.isEmpty()){
-		//		proxyPort = 4321;
-		//	}else{
-		//		proxyPort = Integer.parseInt(portString2);
-		//	}
+			portString2 = in.nextLine();
+			if(portString2.isEmpty()){
+				proxyPort = 4321;
+			}else{
+				proxyPort = Integer.parseInt(portString2);
+			}
 
 			System.out.println("\n\tServer host: " + serverHost + "\n\tServer port: " + serverPort);
 
@@ -131,7 +131,8 @@ class TerminalThread implements Runnable{
 		Scanner in = new Scanner(System.in);
 		System.out.println();
 		System.out.println("@@@@@@@      You can type 'exit' whenever you want to close PROXY!!!       @@@@@@@");
-		System.out.println("@@@@@@@    You can type 'vol' to display users and who are volunteers      @@@@@@@");
+		System.out.println("@@@@@@@    You an type 'vol' to display users and who are volunteers       @@@@@@@");
+		System.out.println("@@@@@@@          You can type 'clear' to clear volunteers list             @@@@@@@");
 		System.out.println("\n");
 		while(true){
 			String command = in.nextLine();
@@ -148,7 +149,7 @@ class TerminalThread implements Runnable{
 			}
 			if( command.equalsIgnoreCase("clear") ){
 				Main.volunteerConnection.clear();
-				System.out.println("You just clear the cashe!");
+				System.out.println("You just cleared the cashe!");
 				System.out.println("  Total volunteers: " + Main.volunteerConnection.size());
 			}
 		}

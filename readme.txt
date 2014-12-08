@@ -1,1 +1,1 @@
-open the pdf file for the report
+open the pdf files for the reports
